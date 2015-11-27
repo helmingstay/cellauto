@@ -1,0 +1,11 @@
+Package: cgolr
+Type: Package
+Title: Conway's Game of Life simulator and explorer, including fast computation, graphing, and extensibility.
+Version: 0.1
+Date: 2015-11-27
+Author: Christian Gunning
+Maintainer: Christian Gunning <code@x14n.org>
+Description: 
+License: GPL (>= 2)
+Imports: methods, Rcpp (>= 0.12.1)
+LinkingTo: Rcpp, RcppArmadillo

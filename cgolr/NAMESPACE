@@ -1,0 +1,3 @@
+useDynLib(cgolr)
+exportPattern("^[[:alpha:]]+")
+import(methods, Rcpp)
