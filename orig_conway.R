@@ -35,6 +35,7 @@ mk.conway <- function(
     ## matrices for summing neighborhood
     .inmat <- sapply(1:.nrow, function(x) (.nrow:1 + x )%%.nrow < .diam)
     .outmat <- sapply(1:.ncol, function(x) (.ncol:1 + x )%%.ncol < .diam)
+    browser()
 
     for(ii in 1:.nsteps) {
         if(.plot) {
