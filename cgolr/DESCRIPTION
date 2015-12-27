@@ -7,5 +7,5 @@ Author: Christian Gunning
 Maintainer: Christian Gunning <code@x14n.org>
 Description: 
 License: GPL (>= 2)
-Imports: methods, Rcpp (>= 0.12.1)
+Imports: methods, Rcpp (>= 0.12.1), animation
 LinkingTo: Rcpp, RcppArmadillo

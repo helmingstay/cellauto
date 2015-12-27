@@ -60,7 +60,9 @@ public:                         // which have a getter/setter and getter
     // advance one step
     void step() {
         arma::umat now_alive = (grid >= 1.0);
+        // matrix mult - sum of living cells in neighborhood, including self
         arma::mat counts = (rowmask.grid * now_alive) * colmask.grid;
+        // subtract off self
         counts = counts - now_alive;
         // initialize empty bool comparison mat
         arma::umat tmp_lives(grid.n_rows, grid.n_cols, zeros);
@@ -84,7 +86,7 @@ public:                         // which have a getter/setter and getter
         grid.elem( find(tmp_lives == 1)  ) *= grow ;
         grid.elem( find(tmp_lives != 1)  ) *= (1.0 - decay) ;
         // births
-        grid.elem( find(tmp_born == 1)  ) += 1.0 ;
+        grid.elem( find(tmp_born == 1)  ).ones();
     }
 
     
