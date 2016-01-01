@@ -1,8 +1,9 @@
 pss('plot.prep.R')
 
-set.seed(1)
+set.seed(2)
 ## output dimensions
-.dim <- c(480,640)
+#.dim <- c(600,800)
+.dim <- c(720, 1280)
 ## snowflakes: diam(5,5), lives(2:3) born(3), dens(.45)
 ## trees: diam(4,5), lives(2:3) born(3), dens(.55)
 ##
@@ -14,7 +15,7 @@ set.seed(1)
 ## grow/decay does not effect dynamics
 ## just eye candy
 .test$grow <- 1.000
-.test$decay <- 0.05
+.test$decay <- 0.01
 ## initialize grid
 .test$grid <- matrix(
     #rbinom(prod(.dim), 1, 0.05),
@@ -22,10 +23,12 @@ set.seed(1)
     0,
     nrow=.dim[1], ncol=.dim[2]
 )
-.nc <- 3
+.nc <- c(1,.dim[1] %/% c(2:5))
+.ends <- 1
+
 #.test$grid[1:.nc,] <- rep(1, length.out=.dim[2]*.nc)
-.test$grid[1:.nc,] <- 1
-.test$grid[,1:.nc] <- 0
+.test$grid[.nc,(1+.ends):(.dim[2]-.ends)] <- 1
+#.test$grid[,1:.nc] <- 0
 #.test$grid[,1:.nc] <- rep(c(0,1,1), length.out=.dim[1]*.nc)
 
 ## plotting function
@@ -62,14 +65,14 @@ movie <- function(.nstep, obj, .silent=T, .compare.at=1e1) {
 
 ani.options(
     ## does interval have any effect??
-    interval = 0.05, 
+    interval = 0.05,
     ani.height=.dim[1], ani.width=.dim[2]
 )
 
-my.nstep <- 4e3
+my.nstep <- 1e4
 saveVideo(
     movie(my.nstep, .test, .silent=F), 
-    video.name='conway.source.mp4',
+    video.name='conway.step.bar.mp4',
     ## ffmpeg opts: https://trac.ffmpeg.org/wiki/Encode/H.264
-    other.opts='-framerate 15 -qp 0  -preset veryslow -c:v libx264 -r 30 -pix_fmt yuv420p'
+    other.opts='-hide_banner -qp 0 -preset veryslow -c:v libx264  -pix_fmt yuv420p'
 )

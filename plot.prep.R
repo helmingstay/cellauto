@@ -12,10 +12,10 @@ ani.options(
 .max.z <- 1
 .at <- seq(from=0, to=.max.z, length.out=.ncolor)
 
-.decay.ramp.cols <- c('darkslateblue','cornflowerblue')
-.decay.ramp <- colorRampPalette(colors=.decay.ramp.cols, space='Lab')(.ncolor-3)
 .life.col <- 'lightslategrey'
 .dead.col <- '#060606'
+.decay.ramp.cols <- c(.dead.col,'darkslateblue','cornflowerblue')
+.decay.ramp <- colorRampPalette(colors=.decay.ramp.cols, space='Lab')(.ncolor-3)
 ## set "regions" colors for lattice
 .regions.col=c(.dead.col,.decay.ramp, .life.col)
 
