@@ -1,6 +1,7 @@
 require(cgolr)
 require(animation)
 
+
 ## animation
 ani.options(
     ani.type='png', ani.dev='png'
