@@ -9,7 +9,7 @@ using arma::fill::zeros;
 class mask {                     
 public:                         
     mask(int nn, int diam, int offset) :
-        grid(nn,nn,zeros)
+        nhood(nn,nn,zeros)
     {
         make_mask(diam, offset);
     };
@@ -18,17 +18,17 @@ public:
         int center = (diam / 2) + 1 ;
         //int center = 0;
         // row mask
-        for(int ii = 0; ii < grid.n_rows; ii++) {
-            for(int jj = 0; jj < grid.n_rows; jj++) {
+        for(int ii = 0; ii < nhood.n_rows; ii++) {
+            for(int jj = 0; jj < nhood.n_rows; jj++) {
                 // off-diagonal, wrap boundaries
-                if  ( (ii + jj + center + offset) % grid.n_rows < diam ) {
-                    grid(ii, (grid.n_rows-1)-jj) = 1;
+                if  ( (ii + jj + center + offset) % nhood.n_rows < diam ) {
+                    nhood(ii, (nhood.n_rows-1)-jj) = 1;
                 }
             }
         }
     }
     // square matrix, fill w/0&1
-    arma::mat grid;
+    arma::umat nhood;
     // define width of neighborhood
     int diam;
     // handedness, for even diam
@@ -45,48 +45,82 @@ public:                         // which have a getter/setter and getter
     ) : 
         grow(1.0), decay(1.0),
         grid(nrow, ncol, zeros),
+        neighbor(nrow, ncol, zeros),
+        alive(nrow, ncol, zeros),
         rowmask(nrow, diam_row, offset_row),
         colmask(ncol, diam_col, offset_col)
     {};
-    arma::vec lives_at;
-    arma::vec born_at;
+    arma::uvec lives_at;
+    arma::uvec born_at;
     double decay;
     double grow;
-    // game grid
+    // game grid, double (for decay)
     arma::mat grid;
+    // counts of living neighbors
+    arma::umat neighbor;
+    // currently alive
+    arma::umat alive;
+    arma::umat alive_prev;
+    // index vectors from find
+    // records state transitions
+    arma::uvec update_birth;
+    arma::uvec update_death;
     mask rowmask;
     mask colmask;
+    
+    // reset counts on grid edit??
+    void init_grid() {
+        neighbor.zeros();
+        alive.zeros();
+        alive_prev.zeros();
+        // seed history
+        // alive == 2, delta==1
+        alive = (grid >= 1.0);
+        alive_prev = (grid >= 1.0);
+        // recompute neighbors
+        init_neighbor();
+    }
+    
+    // recompute neighbor counts
+    void init_neighbor() {
+        // matrix mult - sum of living cells in neighborhood, including self
+        neighbor = (rowmask.nhood * alive) * colmask.nhood;
+        // subtract off self
+        neighbor = neighbor - alive;
+        // initialize empty bool comparison mat
+    }
 
     // advance one step
     void step() {
-        arma::umat now_alive = (grid >= 1.0);
-        // matrix mult - sum of living cells in neighborhood, including self
-        arma::mat counts = (rowmask.grid * now_alive) * colmask.grid;
-        // subtract off self
-        counts = counts - now_alive;
-        // initialize empty bool comparison mat
-        arma::umat tmp_lives(grid.n_rows, grid.n_cols, zeros);
-        arma::umat tmp_born(grid.n_rows, grid.n_cols, zeros);
-        // find keep-living 
+        init_neighbor();
+        // store last state, edit alive 
+        alive_prev = alive;
+        // find cells that fulfill keep-living conts
         for (int ii = 0; ii < lives_at.size(); ii++) {
-            tmp_lives.elem(find(counts == lives_at(ii))).ones();
+            // tag members fulfilling condition
+            alive(find( neighbor == lives_at(ii))).fill(3);
         }
-        // (only if currently alive)
-        tmp_lives.elem(find(now_alive < 1 )).zeros();
+        // Either was not alive prev 
+        // or does not fulfill current conditions
+        update_death = find(alive + alive_prev != 4);
+        alive(update_death).zeros();
         //
         // find births 
         for (int ii = 0; ii < born_at.size(); ii++) {
-            tmp_born.elem(find(counts == born_at(ii))).ones();
+            // tag members fulfilling condition
+            alive(find(neighbor == born_at(ii))).fill(3);
         }
-        // (only if currently not alive)
-        tmp_born.elem(find(now_alive == 1 )).zeros();
-        //
+        // record birth
+        update_birth = find(alive + alive_prev == 3);
+        alive(update_birth).fill(1);
+        //cleanup
+        alive(find(alive==3)).ones();
         // update states
         // first, update living-in-previous
-        grid.elem( find(tmp_lives == 1)  ) *= grow ;
-        grid.elem( find(tmp_lives != 1)  ) *= (1.0 - decay) ;
+        //grid *= grow ;
+        grid( update_death ) *= (1.0 - decay) ;
         // births
-        grid.elem( find(tmp_born == 1)  ).ones();
+        grid( update_birth ).ones();
     }
 
     
@@ -99,33 +133,34 @@ public:                         // which have a getter/setter and getter
             throw std::range_error("Dimension of new grid must match old");
         }
         grid = gr;
+        init_grid();
     }
     // getters/setters for masks
     // rows
-    arma::mat get_rowmask() {
-        return rowmask.grid;
+    arma::umat get_rowmask() {
+        return rowmask.nhood;
     }
-    void set_rowmask(arma::mat gr) {
-        if ( !gr.is_square() ) {
+    void set_rowmask(arma::umat nhood_) {
+        if ( !nhood_.is_square() ) {
             throw std::range_error("Rowmask must be square matrix");
         }
-        if ( gr.n_rows != grid.n_rows ) {
+        if ( nhood_.n_rows != grid.n_rows ) {
             throw std::range_error("Rowmask dim must match game grid nrows");
         }
-        rowmask.grid = gr;
+        rowmask.nhood = nhood_;
     }
     // cols
-    arma::mat get_colmask() {
-        return colmask.grid;
+    arma::umat get_colmask() {
+        return colmask.nhood;
     }
-    void set_colmask(arma::mat gr) {
-        if ( !gr.is_square() ) {
+    void set_colmask(arma::umat nhood_) {
+        if ( !nhood_.is_square() ) {
             throw std::range_error("Colmask must be square matrix");
         }
-        if ( gr.n_rows != grid.n_rows ) {
+        if ( nhood_.n_rows != grid.n_rows ) {
             throw std::range_error("Colmask dim must match game grid ncol");
         }
-        colmask.grid = gr;
+        colmask.nhood = nhood_;
     }
 
 //private:

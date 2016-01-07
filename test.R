@@ -96,7 +96,14 @@ ani.options(
     ani.height=.dim[1], ani.width=.dim[2]
 )
 
-my.nstep <- 2e3
+my.nstep <- 2e2
+#my.nstep <- 2e2
+#   user  system elapsed
+#364.968  58.400 311.762
+## without plotting:
+#user  system elapsed         Frame 199 of 200
+#205.068   0.788 205.541
+
 my.noise.at <- 1
 ## approx once per frame
 my.noise.prop <- my.noise.at/prod(.dim) 
