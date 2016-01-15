@@ -8,14 +8,14 @@ set.seed(2)
 ## trees: diam(4,5), lives(2:3) born(3), dens(.55)
 ##
 ## define gridsize, neighborhood, offsets
-.test <- new(cgolr, .dim[1],.dim[2],3,3,0,0)
+.test <- new(cgolr, .dim[1],.dim[2],1,1,0,0)
 ## basic rules
 .test$lives_at <- 2:3
 .test$born_at <- 3
 ## grow/decay does not effect dynamics
 ## just eye candy
 .test$grow <- 1.000
-.test$decay <- 0.01
+.test$decay <- 0.1
 ## initialize grid
 .test$grid <- matrix(
     #rbinom(prod(.dim), 1, 0.05),
@@ -23,17 +23,32 @@ set.seed(2)
     0,
     nrow=.dim[1], ncol=.dim[2]
 )
+## chop off this many pixels from ends
+.ends <- 10
 ## cut region into halves, thirds, 4ths...
-.h.bar.spec <- c(3/2, 4/3, 2:4)
+#.h.bar.spec <- c(3/2, 4/3, 2:4)
+.h.bar.spec <- c(4, 4/3)
+#.v.bar.spec <- c(4, 4/3)
+.v.bar.spec <- c(3/1)
 ## index of rows/cols to place horiz / vert bars
 .h.bar <- .dim[1] %/% .h.bar.spec
-.v.bar <- .dim[2] %/% c(5/3, 5/4)
-## chop off this many pixels from ends
-.ends <- 0
+.v.bar <- .dim[2] %/% .v.bar.spec
+##  ensure square box 
+.v.bar <- c(.v.bar, .v.bar+diff(.h.bar))
+## crete line between box corners
+.diag <- (.ends:(min(.dim)-.ends))
+.offset <- min(.v.bar) - min(.h.bar)
+.diag <- cbind(row=.diag, 
+    col1=(.diag)+.offset, 
+    col2=rev(.diag)+.offset
+)
+
 
 #.test$grid[1:.nc,] <- rep(1, length.out=.dim[2]*.nc)
 .test$grid[.h.bar,(1+.ends):(.dim[2]-.ends)] <- 1
 .test$grid[(1+.ends):(.dim[1]-.ends), .v.bar] <- 1
+.test$grid[.diag[,c(1,2)]] <- 1
+.test$grid[.diag[,c(1,3)]] <- 1
 #.test$grid[,1:.nc] <- 0
 #.test$grid[,1:.nc] <- rep(c(0,1,1), length.out=.dim[1]*.nc)
 
@@ -56,23 +71,25 @@ movie <- function(.nstep, obj, .silent=T,
         colorkey=F, useRaster=T, at=.at,
         par.settings=.theme.novpadding 
     )
-    ## comparison
-    .comp.grid <- obj$grid
-    ## first step above
+    ## comparison for end of life
+    .comp.grid <- (obj$grid >= 1)
+    ## 
     for (ii in 1:(.nstep-1)) {
         ## report
         if (!.silent) cat(sprintf('## Processing:\t%2.0f%%\t\tFrame %d of %d\r',(100*ii)/.nstep, ii, .nstep))
         ## plot, then step
         plot(.plot)
+        browser()
         obj$step()
         ## stop if living cells are identical
         ## between now and last comarison grid
         if (!(ii%%.compare.at)) {
-            if (identical(.comp.grid>=1, obj$grid>=1)) {
+            .comp.new <- (obj$grid >= 1)
+            if (identical(.comp.grid, .comp.new)) {
                 cat(sprintf('## No life change at gen %d\n', ii)) 
                 return()
             }
-            .comp.grid <- obj$grid
+            .comp.grid <- .comp.new
         }
         ## inject life-noise at given period
         if (ii >= .noise.start && !(ii%%.noise.at)) {
@@ -92,7 +109,7 @@ movie <- function(.nstep, obj, .silent=T,
 
 ani.options(
     ## does interval have any effect??
-    interval = 1/32,
+    interval = 1/16,
     ani.height=.dim[1], ani.width=.dim[2]
 )
 
@@ -107,14 +124,14 @@ my.nstep <- 2e2
 my.noise.at <- 1
 ## approx once per frame
 my.noise.prop <- my.noise.at/prod(.dim) 
-my.noise.start <- 1e3
+my.noise.start <- my.nstep
 saveVideo(
     movie(my.nstep, .test, .silent=F, 
         .noise.at=my.noise.at, .noise.prop=my.noise.prop,
         .noise.start=my.noise.start,
-    ), video.name='conway.noise.mp4',
+    ), video.name='conway.box.mp4',
     ## ffmpeg opts: https://trac.ffmpeg.org/wiki/Encode/H.264
     ## -framerate for input, -r for output
     ## see video.stackexchange.com/questions/13066/how-to-encode-a-video-at-30-fps-from-images-taken-at-7-fps
-    other.opts='-hide_banner -qp 0 -preset slow -c:v libx264  -pix_fmt yuv420p -r 32'
+    other.opts='-hide_banner -qp 0 -preset slow -c:v libx264  -pix_fmt yuv420p'
 )
