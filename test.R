@@ -8,16 +8,17 @@ set.seed(2)
 ## trees: diam(4,5), lives(2:3) born(3), dens(.55)
 ##
 ## define gridsize, neighborhood, offsets
-.test <- new(cgolr, .dim[1],.dim[2],1,1,0,0)
+.test <- new(cgolr, .dim[1],.dim[2])
+.test$init_rules(lives_at=2:3, born_at=3, 1,1,0,0)
 ## basic rules
-.test$lives_at <- 2:3
-.test$born_at <- 3
+#.test$lives_at <- 2:3
+#.test$born_at <- 3
 ## grow/decay does not effect dynamics
 ## just eye candy
 .test$grow <- 1.000
 .test$decay <- 0.1
 ## initialize grid
-.test$grid <- matrix(
+.init.mat <- matrix(
     #rbinom(prod(.dim), 1, 0.05),
     #rep(c(0,1,1), length.out=prod(.dim)),
     0,
@@ -45,10 +46,11 @@ set.seed(2)
 
 
 #.test$grid[1:.nc,] <- rep(1, length.out=.dim[2]*.nc)
-.test$grid[.h.bar,(1+.ends):(.dim[2]-.ends)] <- 1
-.test$grid[(1+.ends):(.dim[1]-.ends), .v.bar] <- 1
-.test$grid[.diag[,c(1,2)]] <- 1
-.test$grid[.diag[,c(1,3)]] <- 1
+.init.mat[.h.bar,(1+.ends):(.dim[2]-.ends)] <- 1
+.init.mat[(1+.ends):(.dim[1]-.ends), .v.bar] <- 1
+.init.mat[.diag[,c(1,2)]] <- 1
+.init.mat[.diag[,c(1,3)]] <- 1
+.test$grid <- .init.mat
 #.test$grid[,1:.nc] <- 0
 #.test$grid[,1:.nc] <- rep(c(0,1,1), length.out=.dim[1]*.nc)
 
@@ -79,7 +81,6 @@ movie <- function(.nstep, obj, .silent=T,
         if (!.silent) cat(sprintf('## Processing:\t%2.0f%%\t\tFrame %d of %d\r',(100*ii)/.nstep, ii, .nstep))
         ## plot, then step
         plot(.plot)
-        browser()
         obj$step()
         ## stop if living cells are identical
         ## between now and last comarison grid
@@ -120,6 +121,12 @@ my.nstep <- 2e2
 ## without plotting:
 #user  system elapsed         Frame 199 of 200
 #205.068   0.788 205.541
+## new, with plotting
+#   user  system elapsed
+#133.352   1.964 115.793
+## new, without plotting
+# user  system elapsed
+#  3.088   0.664   3.196
 
 my.noise.at <- 1
 ## approx once per frame
