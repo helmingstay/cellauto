@@ -1,18 +1,25 @@
 pss('plot.prep.R')
+source('mk.movie.R')
+require(cgolr)
 
 set.seed(2)
 ## output dimensions
 #.dim <- c(600,800)
 .dim <- c(720, 1280)
+my.nstep <- 1.5e3
 ## snowflakes: diam(5,5), lives(2:3) born(3), dens(.45)
 ## trees: diam(4,5), lives(2:3) born(3), dens(.55)
 ##
 ## define gridsize, neighborhood, offsets
 .test <- new(cgolr, .dim[1],.dim[2])
-.test$init_rules(lives_at=2:3, born_at=3, 1,1,0,0)
-## basic rules
-#.test$lives_at <- 2:3
-#.test$born_at <- 3
+## rule atlas: https://en.wikipedia.org/wiki/Life-like_cellular_automaton
+## "normal rules
+#.test$init_rules(lives_at=2:3, born_at=3, 1,1,0,0)
+##
+## replicator - descent into static @~1500
+#.test$init_rules(lives_at=c(1,3,5,7), born_at=c(1,3,5,7), r.rad=1, c.rad=1, r.offset=0, c.offset=0)
+## 34 life
+.test$init_rules(lives_at=c(3,4), born_at=c(3,4), r.rad=1, c.rad=1, r.offset=0, c.offset=0)
 ## grow/decay does not effect dynamics
 ## just eye candy
 .test$grow <- 1.000
@@ -54,59 +61,6 @@ set.seed(2)
 #.test$grid[,1:.nc] <- 0
 #.test$grid[,1:.nc] <- rep(c(0,1,1), length.out=.dim[1]*.nc)
 
-## plotting function
-movie <- function(.nstep, obj, .silent=T, 
-    .compare.at=1e1, 
-    .noise.start=5e2,
-    .noise.at=1e2, 
-    ## on average, 1 per step
-    .noise.prop=.noise.at/prod(dim(obj$grid))
-) {
-    ## dimension and total number of elements
-    .dim <- dim(obj$grid)
-    .n.tot <- prod(.dim)
-    ## For levelplot
-    .plot.grid <- expand.grid(y=1:.dim[1], x=1:.dim[2], z=1)
-    .plot.grid$z <- as.vector(obj$grid)
-    .plot <- levelplot(z ~ x*y, .plot.grid, 
-        scales=list(draw=F), xlab='', ylab='',
-        colorkey=F, useRaster=T, at=.at,
-        par.settings=.theme.novpadding 
-    )
-    ## comparison for end of life
-    .comp.grid <- (obj$grid >= 1)
-    ## 
-    for (ii in 1:(.nstep-1)) {
-        ## report
-        if (!.silent) cat(sprintf('## Processing:\t%2.0f%%\t\tFrame %d of %d\r',(100*ii)/.nstep, ii, .nstep))
-        ## plot, then step
-        plot(.plot)
-        obj$step()
-        ## stop if living cells are identical
-        ## between now and last comarison grid
-        if (!(ii%%.compare.at)) {
-            .comp.new <- (obj$grid >= 1)
-            if (identical(.comp.grid, .comp.new)) {
-                cat(sprintf('## No life change at gen %d\n', ii)) 
-                return()
-            }
-            .comp.grid <- .comp.new
-        }
-        ## inject life-noise at given period
-        if (ii >= .noise.start && !(ii%%.noise.at)) {
-            ## integer number of 
-            ## noise pixels per noise event
-            #.n.noise <- round(.n.tot * .noise.prop)
-            .n.noise <- rbinom(1, .n.tot, .noise.prop)
-            ## indices of noise
-            .noise <- sample.int(.n.tot, size=.n.noise)
-            obj$grid[.noise] <- 1
-        }
-        #.nc <- 4
-        #obj$grid[,1:.nc] <- rep(c(0,1,1), length.out=.dim[1]*.nc)
-        .plot$panel.args.common$z <- as.vector(obj$grid)
-    }
-}
 
 ani.options(
     ## does interval have any effect??
@@ -114,7 +68,6 @@ ani.options(
     ani.height=.dim[1], ani.width=.dim[2]
 )
 
-my.nstep <- 2e2
 #my.nstep <- 2e2
 #   user  system elapsed
 #364.968  58.400 311.762
@@ -128,15 +81,15 @@ my.nstep <- 2e2
 # user  system elapsed
 #  3.088   0.664   3.196
 
-my.noise.at <- 1
+#my.noise.at <- 1
 ## approx once per frame
-my.noise.prop <- my.noise.at/prod(.dim) 
-my.noise.start <- my.nstep
+#my.noise.prop <- my.noise.at/prod(.dim) 
+#my.noise.start <- my.nstep
 saveVideo(
-    movie(my.nstep, .test, .silent=F, 
-        .noise.at=my.noise.at, .noise.prop=my.noise.prop,
-        .noise.start=my.noise.start,
-    ), video.name='conway.box.mp4',
+    mk.movie(my.nstep, .test, .silent=F, 
+        #.noise.at=my.noise.at, .noise.prop=my.noise.prop,
+        #.noise.start=my.noise.start,
+    ), video.name='rule.34.box.mp4',
     ## ffmpeg opts: https://trac.ffmpeg.org/wiki/Encode/H.264
     ## -framerate for input, -r for output
     ## see video.stackexchange.com/questions/13066/how-to-encode-a-video-at-30-fps-from-images-taken-at-7-fps

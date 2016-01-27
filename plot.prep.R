@@ -1,4 +1,3 @@
-require(cgolr)
 require(animation)
 
 
