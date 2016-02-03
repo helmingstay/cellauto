@@ -29,13 +29,18 @@ public:
     cgolr(
         int nrow, int ncol
     ) : 
+        dim(2,0),
         grow(1.0), decay(1.0),
         grid(nrow, ncol, zeros),
         alive(nrow, ncol, zeros),
         lives_at(), born_at(),
         neighbor(nrow, ncol, zeros),
-        ready(false)
-    { };
+        ready(false),
+        user_data()
+    { 
+        dim[0] = nrow;
+        dim[1] = ncol;
+    };
     // publicly accessible members
     // play with at will
     double decay;
@@ -48,6 +53,8 @@ public:
     arma::umat alive;
     // vector of addresses
     vec_uvec address;
+    Rcpp::IntegerVector dim;
+    Rcpp::List user_data;
 
     private:
     // internal member variables
@@ -125,12 +132,12 @@ public:
     // required to run - 
     // specify neighborhood and transition rules
     // TODO?? implement offsets in init_address?
-    void init_rules(arma::uvec _lives, arma::uvec _born, int _radius_row, int _radius_col, int _offset_row, int _offset_col) {
+    void init_rules(arma::uvec _born, arma::uvec _lives, int _radius_row, int _radius_col, int _offset_row, int _offset_col) {
         // flip bit positions
         //arma::uvec tmp_lives(_lives_at);
         //arma::uvec tmp_born(_born_at);
-        _lives.for_each(init_bitset(lives_at));
         _born.for_each(init_bitset(born_at));
+        _lives.for_each(init_bitset(lives_at));
         radius_row = _radius_row;
         radius_col = _radius_col;
         // each element of vector is uvec, filled w/indices of neighborhood
@@ -185,13 +192,15 @@ public:
 //private:
 };
 
-RCPP_MODULE(GameEx){
+RCPP_MODULE(mod_cgolr){
     using namespace Rcpp ;
     class_<cgolr>( "cgolr" )
     .constructor<int,int>("Set up new game: nrow (int); ncol (int)")
     .method("init_rules", &cgolr::init_rules, "Must run this before step: IntVec lives_at, IntVec born_at, mask radius: (row int, col int); mask offset: (row int, col int)")
     .method("step", &cgolr::step, "Advance 1 step (must run init_rules first")
     //
+    .field("dim", &cgolr::dim, "IntegerVec, dimensions of grid (row, col)")
+    .field("user_data", &cgolr::user_data, "User-modifiable list, includes plots")
     // expose for debugging
     .field("alive", &cgolr::alive, "umat, currently alive")
     .field("neighbor", &cgolr::neighbor, "umat, number of neighbors")

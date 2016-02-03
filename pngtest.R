@@ -25,7 +25,7 @@ my.nstep <- 5e2
 .test <- new(cgolr, .dim[1],.dim[2])
 ## rule atlas: https://en.wikipedia.org/wiki/Life-like_cellular_automaton
 ## "normal rules
-.test$init_rules(lives_at=2:3, born_at=3, 1,1,0,0)
+.test$init_rules(born_at=3, lives_at=2:3, 1,1,0,0)
 ##
 ## replicator - descent into static @~1500
 #.test$init_rules(lives_at=c(1,3,5,7), born_at=c(1,3,5,7), r.rad=1, c.rad=1, r.offset=0, c.offset=0)

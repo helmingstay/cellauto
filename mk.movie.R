@@ -1,3 +1,4 @@
+require(lattice)
 ## plotting function
 mk.movie <- function(.nstep, obj, .silent=T, 
     .compare.at=1e1, 

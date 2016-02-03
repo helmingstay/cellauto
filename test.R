@@ -19,7 +19,7 @@ my.nstep <- 1.5e3
 ## replicator - descent into static @~1500
 #.test$init_rules(lives_at=c(1,3,5,7), born_at=c(1,3,5,7), r.rad=1, c.rad=1, r.offset=0, c.offset=0)
 ## 34 life
-.test$init_rules(lives_at=c(3,4), born_at=c(3,4), r.rad=1, c.rad=1, r.offset=0, c.offset=0)
+.test$init_rules(born_at=c(3,4), lives_at=c(3,4), r.rad=1, c.rad=1, r.offset=0, c.offset=0)
 ## grow/decay does not effect dynamics
 ## just eye candy
 .test$grow <- 1.000
