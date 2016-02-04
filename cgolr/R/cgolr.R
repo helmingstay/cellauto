@@ -6,7 +6,7 @@
 ## initialize
 cgolr_new <- function(
     nrow, ncol, 
-    settings=cgolr_settings_default(),
+    settings=cgolr_settings(quiet=TRUE),
     init.grid = c('blank','random','crosshairs')
 ) {
     if (!is.list(settings)){

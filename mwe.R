@@ -4,16 +4,13 @@ require(animation)
 ## No death - fills screen
 # .defaults <- cgolr.set.default(decay=0.05, born=3, lives=0:8)
 ## Diamoeba B35678/S5678
-.defaults <- cgolr_settings_default(decay=0.005, born=c(3,5,6,7,8), lives=5:8)
-.defaults <- cgolr_settings_rule_by_name('diamoeba')
+cgolr_settings_default(decay=0.01)
+cgolr_settings_rule_by_name('diamoeba')
 ## 34 - blob
 #.defaults <- cgolr_settings_default(decay=0.05, born=3:4, lives=3:4)
 #.defaults <- cgolr.set.default(decay=0.05)
 
-.test <- cgolr_new(720, 1280, 
-    init.grid='crosshairs',
-    settings=.defaults
-)
+.test <- cgolr_new(720, 1280, init.grid='crosshairs')
 
 init_plot(.test, 
     ncolor=2e3,
@@ -28,7 +25,7 @@ init_plot(.test,
 #.test$grid <- cgolr.grid.random(.test, prob=0.25)
 
 #my.nstep <- 1e2
-my.nstep <- 500
+my.nstep <- 1e3
 
 ani.options(
     ## does interval have any effect??

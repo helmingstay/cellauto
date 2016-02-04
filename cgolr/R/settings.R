@@ -10,7 +10,9 @@
     'r.offset', 'c.offset'
 )
 
-cgolr_settings <- function(settings = NULL, ...) {
+cgolr_settings <- function(
+    settings = NULL, quiet=FALSE, ...
+) {
     lst <- list(...)
     ## if present, append named options to list 
     if (is.list(settings)) {
@@ -19,13 +21,12 @@ cgolr_settings <- function(settings = NULL, ...) {
     .curr <- .cgolrEnv$.settings
     ## query 
     .allowed <- paste0("cgolr settings, allowed names: \n", 
-        paste(.cgolrEnv$allowed.names, collapse = ', '))
+        paste(.cgolrEnv$allowed.names, collapse = ', '), '\n')
     ## nothing to set, instead get
-    if (!length(lst)|| is.null(settings)) {
-        cat(.allowed)
+    if (!length(lst) && is.null(settings)) {
+        if (!quiet) cat(.allowed)
         return(.curr)
     }
-    
     ## basic error checking
     if (is.null(names(lst))) stop("Argument names required")
     if ( !all(names(lst) %in% .cgolrEnv$allowed.names)) {
@@ -33,7 +34,7 @@ cgolr_settings <- function(settings = NULL, ...) {
     }
     ## finally, set
     .curr[names(lst)] <- lst
-    .cgolrEnv$.settings <- .curr
+    assign('.settings', .curr, envir=.cgolrEnv)
     return(.curr)
 }
 
@@ -119,6 +120,6 @@ cgolr_settings_rule_by_name <- function(name=NULL) {
         stop('Rule not implemented') 
     }
     ## pass rule as list to settings
-    .new <- cgolr_settings(.rules[[name]])
+    .new <- cgolr_settings(.rules[[name]], rule_name=name)
     return(.new)
 }
