@@ -3,6 +3,7 @@
 .cgolrEnv <- new.env()
 
 .cgolrEnv$allowed.names <- c(
+    'rule_name',
     'born', 'lives',
     'grow', 'decay',
     'r.rad', 'c.rad',
@@ -36,6 +37,7 @@ cgolr_settings <- function(settings = NULL, ...) {
     return(.curr)
 }
 
+
 ## Default game of life
 ## User supplied args overrides
 cgolr_settings_default <- function(...) {
@@ -54,3 +56,69 @@ cgolr_settings_default <- function(...) {
     return(ret)
 }
 
+
+## for more info see 
+## https://en.wikipedia.org/wiki/Life-like_cellular_automaton
+.cgolrEnv$notable_rules <- within(list(), {
+    replicator <- list(
+        born=c(1,3,5,7),
+        lives=c(1,3,5,7)
+    )
+    seeds <- list(
+        born=c(2),
+        lives=c()
+    )
+    rule25_4 <- list(
+        born=c(2,5),
+        lives=c(4)
+    )
+    no_death <- list(
+        born=c(3),
+        lives=c(0:8)
+    )
+    life <- list(
+        born=c(3),
+        lives=c(2,3)
+    )
+    life34 <- list(
+        born=c(3,4),
+        lives=c(3,4)
+    )
+    diamoeba <- list(
+        born=c(3,5,6,7,8),
+        lives=c(5:8)
+    )
+    rule_2x2 <- list(
+        born=c(3,6),
+        lives=c(1,2,5)
+    )
+    highlife <- list(
+        born=c(3,6),
+        lives=c(2,3)
+    )
+    day_night <- list(
+        born=c(3,6:8),
+        lives=c(3,4,6:8)
+    )
+    morley <- list(
+        born=c(3,6,8),
+        lives=c(2,4,5)
+    )
+    anneal <- list(
+        born=c(4,6:8),
+        lives=c(3,5:8)
+    )
+})
+    
+cgolr_settings_rule_by_name <- function(name=NULL) {
+    .rules <- .cgolrEnv$notable_rules
+    if (is.null(name)) {
+        return(.rules)
+    }
+    if (!(name %in% names(.rules))) { 
+        stop('Rule not implemented') 
+    }
+    ## pass rule as list to settings
+    .new <- cgolr_settings(.rules[[name]])
+    return(.new)
+}

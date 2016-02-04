@@ -63,16 +63,16 @@ init_plot <- function(x,
     ## make color ramp
     .color <- c(color.dead,color.ramp)
     ## ramp, breaks = ncolor -1 - 1 (live col)
-    .color <- colorRampPalette(colors=.color, space='Lab')(.ncolor-2)
+    .color <- colorRampPalette(colors=.color, space='Lab')(ncolor-1)
     ## set "regions" colors for lattice
     .color=c(.color, color.live)
     ## 
     ## data needed for plotting
+    x$plot_data$ncolor <- ncolor
     x$plot_data <- within(x$plot_data, {
         ## levelplot at (zlim)
         ## may need to recompute as grid changes
-        at <- seq(from=zlim[1], to=zlim[2], length.out=ncolor)
-        ncolor <- length(.color)
+        at <- seq(from=zlim[1], to=zlim[2], length.out=ncolor+1)
         raster <- .raster
         ## no padding levelplot
         ## and colors
