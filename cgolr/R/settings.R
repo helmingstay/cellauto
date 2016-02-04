@@ -9,7 +9,7 @@
     'r.offset', 'c.offset'
 )
 
-cgolr.settings <- function(settings = NULL, ...) {
+cgolr_settings <- function(settings = NULL, ...) {
     lst <- list(...)
     ## if present, append named options to list 
     if (is.list(settings)) {
@@ -38,18 +38,19 @@ cgolr.settings <- function(settings = NULL, ...) {
 
 ## Default game of life
 ## User supplied args overrides
-cgolr.set.default <- function(...) {
+cgolr_settings_default <- function(...) {
     .default <- within(list(), {
+       grow <- 1 
+       decay <- 1 
        born <- 3 
-       lives <- c(3,4) 
+       lives <- c(2,3) 
        r.rad <- 1 
        c.rad <- 1 
        r.offset <- 0 
        c.offset <- 0 
-       grow <- 1 
-       decay <- 1 
     })
-    ret <- cgolr.settings(settings = .default, ...)
+    ## over-ride list w/user-supplied
+    ret <- cgolr_settings(settings = .default, ...)
     return(ret)
 }
 

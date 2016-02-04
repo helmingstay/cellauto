@@ -2,16 +2,18 @@
 # Copyright (C) 2015-2016 Christian Gunning
 # code [at] x14n [dot] org
 
-cgolr.setup <- function(
+## create / return new cgolr object
+## initialize
+cgolr_new <- function(
     nrow, ncol, 
-    settings=cgolr.set.default(),
-    init.grid = c('empty','random','crosshairs')
+    settings=cgolr_settings_default(),
+    init.grid = c('blank','random','crosshairs')
 ) {
     if (!is.list(settings)){
         stop('settings must be a named list')
     } else {
         ## otherwise merge with current settings
-        settings <- cgolr.settings(settings)
+        settings <- cgolr_settings(settings)
     }
     if ( length(nrow)!=1 || length(ncol)!=1 ) {
         warning("In cgolr: only the first element of nrow / ncol used.")
@@ -19,6 +21,9 @@ cgolr.setup <- function(
         ncol <- ncol[1]
     }
     ret <- new(cgolr, as.integer(nrow), as.integer(ncol))
+    ## fields from settings
+    ret$grow <- settings$grow
+    ret$decay <- settings$decay
     ## initialize rules
     with(settings, 
         ret$init_rules(
@@ -28,11 +33,12 @@ cgolr.setup <- function(
         )
     )
     grid.type <- match.arg(init.grid)
-    new.grid <- switch(grid.type, 
-        empty = matrix(0, nrow=nrow, ncol=ncol),
-        random = cgolr.grid.random(ret),
-        crosshairs = cgolr.grid.crosshairs(ret)
+    switch(grid.type, 
+        blank = init_grid_blank(ret),
+        random = init_grid_random(ret),
+        crosshairs = init_grid_crosshairs(ret)
     )
-    ret$grid <- new.grid
+    ## initialize plotting defaults
+    init_plot(ret)
     return(ret)
 }

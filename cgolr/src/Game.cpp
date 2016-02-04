@@ -36,7 +36,9 @@ public:
         lives_at(), born_at(),
         neighbor(nrow, ncol, zeros),
         ready(false),
-        user_data()
+        user_data(),
+        plot_data(),
+        age(0)
     { 
         dim[0] = nrow;
         dim[1] = ncol;
@@ -54,7 +56,11 @@ public:
     // vector of addresses
     vec_uvec address;
     Rcpp::IntegerVector dim;
+    // R module fields are fixed at compile time
+    // These lists are mutable properties
     Rcpp::List user_data;
+    Rcpp::List plot_data;
+    int age;
 
     private:
     // internal member variables
@@ -150,6 +156,7 @@ public:
         init_grid();
     }
 
+
     // advance one step
     void step() {
         if (!ready) {
@@ -176,6 +183,15 @@ public:
                 grid(ii) *= (1.0 - decay);
             }
         }
+        // increment steps taken
+        age++;
+    }
+
+    // advance multiple steps
+    void steps(int nn) {
+        for (;nn>0; nn--) {
+            step();
+        }
     }
 
     // getters/setters 
@@ -198,9 +214,12 @@ RCPP_MODULE(mod_cgolr){
     .constructor<int,int>("Set up new game: nrow (int); ncol (int)")
     .method("init_rules", &cgolr::init_rules, "Must run this before step: IntVec lives_at, IntVec born_at, mask radius: (row int, col int); mask offset: (row int, col int)")
     .method("step", &cgolr::step, "Advance 1 step (must run init_rules first")
+    .method("steps", &cgolr::steps, "Advance N steps (must run init_rules first")
     //
+    .field("age", &cgolr::age, "int, total number of steps taken")
     .field("dim", &cgolr::dim, "IntegerVec, dimensions of grid (row, col)")
-    .field("user_data", &cgolr::user_data, "User-modifiable list, includes plots")
+    .field("user_data", &cgolr::user_data, "User-modifiable list")
+    .field("plot_data", &cgolr::user_data, "User-modifiable list, includes plots")
     // expose for debugging
     .field("alive", &cgolr::alive, "umat, currently alive")
     .field("neighbor", &cgolr::neighbor, "umat, number of neighbors")
