@@ -57,6 +57,8 @@ cgolr_settings_default <- function(...) {
     return(ret)
 }
 
+## set initial default settings
+cgolr_settings(settings=cgolr_settings_default())
 
 ## for more info see 
 ## https://en.wikipedia.org/wiki/Life-like_cellular_automaton
@@ -67,7 +69,8 @@ cgolr_settings_default <- function(...) {
     )
     seeds <- list(
         born=c(2),
-        lives=c()
+        ## must be type numeric, even if empty
+        lives=numeric()
     )
     rule25_4 <- list(
         born=c(2,5),

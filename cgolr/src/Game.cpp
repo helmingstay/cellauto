@@ -38,6 +38,8 @@ public:
         ready(false),
         user_data(),
         plot_data(),
+        // state / transition counts, last full step
+        nbirth(0), ndeath(0), nalive(0),
         age(0)
     { 
         dim[0] = nrow;
@@ -61,6 +63,9 @@ public:
     Rcpp::List user_data;
     Rcpp::List plot_data;
     int age;
+    int nbirth;
+    int ndeath;
+    int nalive;
 
     private:
     // internal member variables
@@ -80,6 +85,7 @@ public:
     // and update the history grid
     template<typename T>
     void birth(T ii) {
+        nbirth++ ;
         alive(ii) = 1;
         //Rf_PrintValue(Rcpp::wrap(address[ii]));
         neighbor(address[ii]) += 1;
@@ -87,6 +93,7 @@ public:
     };
     template<typename T>
     void death(T ii) {
+        ndeath++ ;
         alive(ii) = 0;
         neighbor(address[ii]) -= 1;
         grid(ii) *= (1.0 - decay);
@@ -168,6 +175,9 @@ public:
         arma::umat tmp_neighbor(neighbor);
         int alive0;
         int neighbor0;
+        // reset transition counts
+        nbirth = 0;
+        ndeath = 0;
         // run through whole matrix
         for (int ii = 0; ii < alive.size(); ii++) {
             // order is important for alive0
@@ -184,6 +194,7 @@ public:
             }
         }
         // increment steps taken
+        nalive = accu(alive);
         age++;
     }
 
@@ -215,8 +226,12 @@ RCPP_MODULE(mod_cgolr){
     .method("init_rules", &cgolr::init_rules, "Must run this before step: IntVec lives_at, IntVec born_at, mask radius: (row int, col int); mask offset: (row int, col int)")
     .method("step", &cgolr::step, "Advance 1 step (must run init_rules first")
     .method("steps", &cgolr::steps, "Advance N steps (must run init_rules first")
-    //
+    // counts of transitions, states, etc
     .field("age", &cgolr::age, "int, total number of steps taken")
+    .field("nbirth", &cgolr::nbirth, "int, total births last step")
+    .field("ndeath", &cgolr::ndeath, "int, total deaths last step")
+    .field("nalive", &cgolr::nalive, "int, total alive last step")
+    // dimensions of matrix
     .field("dim", &cgolr::dim, "IntegerVec, dimensions of grid (row, col)")
     .field("user_data", &cgolr::user_data, "User-modifiable list")
     .field("plot_data", &cgolr::user_data, "User-modifiable list, includes plots")

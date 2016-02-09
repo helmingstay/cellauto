@@ -32,6 +32,10 @@ cgolr_new <- function(
             r.offset, c.offset
         )
     )
+    ## store initials
+    ret$user_data$init_settings <- settings
+    ret$user_data$init_grid <- init.grid
+    ##
     grid.type <- match.arg(init.grid)
     switch(grid.type, 
         blank = init_grid_blank(ret),
