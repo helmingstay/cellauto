@@ -16,14 +16,16 @@ cgolr_init_rules <- function(x) {
 ## initialize
 cgolr_new <- function(
     nrow, ncol, 
-    settings=cgolr_settings(quiet=TRUE),
+    settings=NULL,
     init.grid = c('blank','random','crosshairs')
 ) {
-    if (!is.list(settings)){
-        stop('settings must be a named list')
+    if (is.null(settings)) {
+        settings <- cgolr_settings(quiet=TRUE)
+    } else if (!is.list(settings)){
+        stop('settings must be NULL, or a named list')
     } else {
         ## otherwise merge with current settings
-        settings <- cgolr_settings(settings)
+        settings <- cgolr_settings(settings=settings)
     }
     if ( length(nrow)!=1 || length(ncol)!=1 ) {
         warning("In cgolr: only the first element of nrow / ncol used.")
