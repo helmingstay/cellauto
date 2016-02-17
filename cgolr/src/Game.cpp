@@ -236,9 +236,9 @@ RCPP_MODULE(mod_cgolr){
     .field("dim", &cgolr::dim, "IntegerVec, dimensions of grid (row, col)")
     // user modifiable lists
     .field("user_data", &cgolr::user_data, "User-modifiable list")
-    .field("plot_data", &cgolr::user_data, "User-modifiable list, includes plots")
+    .field("plot_data", &cgolr::plot_data, "User-modifiable list, includes plots")
     // user accessible list of settings
-    .field("settings", &cgolr::user_data, "Convenience list of settings (should reproduce object via cgolr_new(obj$dim[1], obj$dim[2], settings=obj$settings).")
+    .field("settings", &cgolr::settings, "Convenience list of settings (should reproduce object via cgolr_new(obj$dim[1], obj$dim[2], settings=obj$settings).")
 
     // expose for debugging
     .field("alive", &cgolr::alive, "umat, currently alive")

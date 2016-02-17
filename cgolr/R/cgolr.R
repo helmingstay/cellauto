@@ -35,7 +35,7 @@ cgolr_new <- function(
             r.offset, c.offset
         )
     )
-    ret$user_data$init_grid <- init.grid
+    ret$user_data$init.grid <- init.grid
     ##
     grid.type <- match.arg(init.grid)
     switch(grid.type, 
