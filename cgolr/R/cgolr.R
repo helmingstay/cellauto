@@ -2,6 +2,17 @@
 # Copyright (C) 2015-2016 Christian Gunning
 # code [at] x14n [dot] org
 
+## initialize rules based on settings
+cgolr_init_rules <- function(x) {
+    with(x$settings,
+        x$init_rules(
+            born, lives, 
+            r.rad, c.rad,
+            r.offset, c.offset
+        )
+    )
+}
+
 ## create / return new cgolr object
 ## initialize
 cgolr_new <- function(
@@ -28,13 +39,8 @@ cgolr_new <- function(
     ## store initials
     ret$settings <- settings
     ##
-    with(settings,
-        ret$init_rules(
-            born, lives, 
-            r.rad, c.rad,
-            r.offset, c.offset
-        )
-    )
+    cgolr_init_rules(ret)
+
     ret$user_data$init.grid <- init.grid
     ##
     grid.type <- match.arg(init.grid)
