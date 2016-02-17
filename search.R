@@ -7,7 +7,8 @@ pss('helpers.R')
 
 .grid <- 'crosshairs'
 .dim <- c(720, 1280)
-cgolr_settings(decay=0.05)
+cgolr_settings(quiet=T)
+#cgolr_settings(decay=0.05)
 
 
 
@@ -17,14 +18,14 @@ ani.options(
     interval = 1/10,
     ani.height=.dim[1], ani.width=.dim[2]
 )
-.run.short <- c('day_night', 'morley')
-## check for death: , 
 
 ## grab all rules
 .rules <- names(cgolr_settings_rule_by_name())
+## don't run these as long
+.run.short <- c('day_night', 'morley')
 ## make movie for each rule
 # 
-l_ply(.rules[5], function(.rule) {
+l_ply(.rules, function(.rule) {
     cat(paste0('## Processing rule ', .rule, '\n'))
     ## get settings for this rule
     .set <- cgolr_settings_rule_by_name(.rule)
@@ -33,16 +34,17 @@ l_ply(.rules[5], function(.rule) {
     } else {
         .nstep = 1e3
     }
-    .nstep = 300
+    #.nstep = 100
     ## construct
     .this <- cgolr_new(
         .dim[1], .dim[2], 
         settings=.set, init.grid=.grid
     )
     ## initialize plotting
-    .init_plot(.this)
+    #init_plot(.this)
+    init_plot(.this)
     ## advance / plot / render
-    .fn=paste0('scan-', .rule, '.mp4')
+    .fn=paste0('classic-', .rule, '.mp4')
     .fn.audio <- paste0('stereo.', .rule, '.ogg')
     saveVideo(
         movie_steps(.this, .nstep=.nstep, .npreamble=10),
@@ -54,12 +56,12 @@ l_ply(.rules[5], function(.rule) {
     .cwd <- setwd(tempdir())
     system(paste0('ffmpeg -y -framerate 10 -i Rplot%d.png -hide_banner -crf 2 -preset slow -c:v libx264  -pix_fmt yuv420p ', .fn))
     ## process audio
-    system("sox --combine concat 'row.*.wav' fin.row.wav")
-    system("sox --combine concat 'col.*.wav' fin.col.wav")
-    system(paste0("sox -M fin.row.wav fin.col.wav -t wav - | ffmpeg -i pipe:0 -c:a libvorbis ", .fn.audio))
-    system(sprintf('ffmpeg -y -i %s -i %s -hide_banner -c:v copy  -c:a copy fin-%s', .fn, .fn.audio, .fn ))
-    system(sprintf('cp fin-%s %s', .fn, .cwd))
-    system('rm *.wav *.ogg')
+    #system("sox --combine concat 'row.*.wav' fin.row.wav")
+    #system("sox --combine concat 'col.*.wav' fin.col.wav")
+    #system(paste0("sox -M fin.row.wav fin.col.wav -t wav - | ffmpeg -i pipe:0 -c:a libvorbis ", .fn.audio))
+    #system(sprintf('ffmpeg -y -i %s -i %s -hide_banner -c:v copy  -c:a copy fin-%s', .fn, .fn.audio, .fn ))
+    system(sprintf('mv %s %s', .fn, .cwd))
+    #system('rm *.wav *.ogg')
     ## and back
     setwd(.cwd)
 })

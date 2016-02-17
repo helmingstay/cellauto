@@ -40,19 +40,9 @@ bleep <- function(.df, .means, prev, interval=1/10,
     save.wave(.tone.row, .fn.row)
 }
 
-.init_plot <- function(x) {
-    init_plot(x,
-        ncolor=100,
-        color.live = 'red',
-        color.dead='grey10',
-        color.ramp=c('darkslateblue', 'firebrick')
-        #color.ramp=c('darkslateblue', 'green')
-    )
-}
-
 .my.text <- function(
     .text, .num, .y, .x=0.01, .just=c(0,0),
-    .gp = gpar(fontsize=20, col="grey")
+    .gp = gpar(fontsize=22, col="lightgreen")
 ) {
     grid.text(paste0(.text,.num), x=.x, y=.y, just=.just, gp=.gp)
 }
@@ -60,7 +50,8 @@ bleep <- function(.df, .means, prev, interval=1/10,
 ## plot with time-jumps
 movie_steps <- function(x, 
     .nstep = 150, 
-    .ndead = 30, .npreamble=30
+    .ndead = 30, .npreamble=30,
+    .sound=F
 ) {
     .rule <- x$user_data$init_settings$rule_name
     ## number of total vid frames 
@@ -102,9 +93,11 @@ movie_steps <- function(x,
     ))
     .cwd <- setwd(tempdir())
     .tmp.stats <- subset(stats, 0==(frame%%2))
-    dlply(.tmp.stats, 'frame', function(.df) {
-        bleep(.df, .means, interval=1/5)
-    })
+    if (.sound) {
+        dlply(.tmp.stats, 'frame', function(.df) {
+            bleep(.df, .means, interval=1/5)
+        })
+    }
     .cwd <- setwd(tempdir())
     print(stats)
 }

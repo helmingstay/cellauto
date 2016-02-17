@@ -7,7 +7,10 @@
     'born', 'lives',
     'grow', 'decay',
     'r.rad', 'c.rad',
-    'r.offset', 'c.offset'
+    'r.offset', 'c.offset',
+    'ncolor', 'zlim',
+    'color.live', 'color.dead',
+    'color.ramp'
 )
 
 cgolr_settings <- function(
@@ -51,6 +54,12 @@ cgolr_settings_default <- function(...) {
        c.rad <- 1 
        r.offset <- 0 
        c.offset <- 0 
+       ncolor <- 100
+       zlim <- c(0,1)
+       color.live <- 'white'
+       color.dead <- 'black'
+       ## first = old, last = newly born
+       color.ramp <- c('darkgrey', 'lightgrey')
     })
     ## over-ride list w/user-supplied
     ret <- cgolr_settings(settings = .default, ...)
@@ -125,4 +134,22 @@ cgolr_settings_rule_by_name <- function(name=NULL) {
     ## pass rule as list to settings
     .new <- cgolr_settings(.rules[[name]], rule_name=name)
     return(.new)
+}
+
+cgolr_settings_color_reds <- function(...) {
+    .set <- within(list(), {
+       color.live <- 'red'
+       color.dead <- 'grey10'
+       color.ramp <- c('darkslateblue', 'firebrick')
+    })
+    cgolr_settings(.set, ...)
+}
+
+cgolr_settings_color_blues <- function(...) {
+    .set <- within(list(), {
+        color.live <- 'lightslategrey'
+        color.dead <- '#060606'
+        color.ramp <- c('darkslateblue','cornflowerblue')
+    })
+    cgolr_settings(.set, ...)
 }

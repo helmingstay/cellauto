@@ -51,28 +51,22 @@ init_grid_crosshairs <- function(x,
 ## prepare data structures for lattice plotting
 ## add to x$plot_data
 ## return nothing
-init_plot <- function(x, 
-    ncolor=100, 
-    color.live = 'lightslategrey',
-    color.dead = '#060606',
-    ## first = old, last = newly born
-    color.ramp = c('darkslateblue','cornflowerblue'),
-    zlim=c(0,1),
-    .raster=TRUE
-) {
+init_plot <- function(x, .raster=TRUE) {
+    ## use current values of settings
+    .pars <- x$user_data$init_settings
     ## make color ramp
-    .color <- c(color.dead,color.ramp)
+    .color <- c(.pars$color.dead, .pars$color.ramp)
     ## ramp, breaks = ncolor -1 - 1 (live col)
-    .color <- colorRampPalette(colors=.color, space='Lab')(ncolor-1)
+    .color <- colorRampPalette(colors=.color, space='Lab')(.pars$ncolor-1)
     ## set "regions" colors for lattice
-    .color=c(.color, color.live)
+    .color=c(.color, .pars$color.live)
     ## 
     ## data needed for plotting
-    x$plot_data$ncolor <- ncolor
+    x$plot_data$ncolor <- .pars$ncolor
     x$plot_data <- within(x$plot_data, {
         ## levelplot at (zlim)
         ## may need to recompute as grid changes
-        at <- seq(from=zlim[1], to=zlim[2], length.out=ncolor+1)
+        at <- seq(from=.pars$zlim[1], to=.pars$zlim[2], length.out=ncolor+1)
         raster <- .raster
         ## no padding levelplot
         ## and colors
