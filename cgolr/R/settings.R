@@ -148,33 +148,38 @@ cgolr_settings(settings=cgolr_settings_default())
     )
 })
     
-cgolr_settings_rule_by_name <- function(name=NULL) {
+
+rule_by_name <- function(name=NULL, ...) {
     .rules <- .cgolrEnv$notable_rules
     if (is.null(name)) {
         return(.rules)
     }
     if (!(name %in% names(.rules))) { 
-        stop('Rule not implemented') 
+        stop(paste0('Rule not implemented. Allowed names: \n', paste(.rules, collapse=', ')) )
     }
     ## pass rule as list to settings
-    .new <- cgolr_settings(.rules[[name]], rule_name=name)
-    return(.new)
+    .set <- .rules[[name]]
+    .set$rule_name <- name
+    #.new <- cgolr_settings(.set, ...)
+    return(.set)
 }
 
-cgolr_settings_color_reds <- function(...) {
-    .set <- within(list(), {
+color_reds <- function(...) {
+    .set <- within(as.list(...), {
        color.live <- 'red'
        color.dead <- 'grey10'
        color.ramp <- c('darkslateblue', 'firebrick')
     })
-    cgolr_settings(.set, ...)
+    #.new <- cgolr_settings(.set, ...)
+    return(.set)
 }
 
-cgolr_settings_color_blues <- function(...) {
-    .set <- within(list(), {
+color_blues <- function(...) {
+    .set <- within(as.list(...), {
         color.live <- 'lightslategrey'
         color.dead <- '#060606'
         color.ramp <- c('darkslateblue','cornflowerblue')
     })
-    cgolr_settings(.set, ...)
+    #.new <- cgolr_settings(.set, ...)
+    return(.set)
 }

@@ -4,12 +4,11 @@
 
 ## initialize rules based on settings
 cgolr_init_rules <- function(x) {
-    with(x$settings,
-        x$init_rules(
-            born, lives, 
-            r.rad, c.rad,
-            r.offset, c.offset
-        )
+    .set <- x$settings
+    x$init_rules(
+        .set$born, .set$lives, 
+        .set$r.rad, .set$c.rad,
+        .set$r.offset, .set$c.offset
     )
 }
 
