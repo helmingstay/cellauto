@@ -1,0 +1,65 @@
+---
+title: "Cellular Automata"
+output: html_document
+runtime: shiny
+---
+
+```{r, echo=FALSE}
+require(lattice)
+require(cgolr)
+not.used <- cgolr_settings(rule_by_name(name='life'))
+not.used <- cgolr_settings(color_blues(decay=0.1))
+.dim <- c(400, 600)
+obj <- cgolr_new(
+        .dim[1], .dim[2],
+    init.grid='crosshairs'
+)
+## possible rules
+allowed_rules <- rule_by_name()
+
+shinyApp(
+  ui = fluidPage(
+    titlePanel(textOutput('theRule')),
+    sidebarLayout(
+        sidebarPanel(
+            selectInput("rule", "Rule:", 
+                choices = names(allowed_rules)
+            ),
+            numericInput("nstep", "Steps (0 resets):", 1,
+                min = 0, max = 100, step = 1
+            ),
+            actionButton('do', "Go!")
+        ),
+        mainPanel(
+            plotOutput("thePlot", height=.dim[1])
+        )
+    )
+  ),
+  server = function(input, output) {
+    new_obj <- eventReactive(input$reset, {
+        obj
+    })
+    output$refresh <- renderText({ 
+        not.used <- new_obj()
+        paste0('Object Reset.')
+    })
+    robj <- eventReactive(input$do, {
+        ## reset
+        if (input$nstep==0) {
+            init_grid_crosshairs(obj)
+        }
+        ## set new rule
+        obj$settings <- cgolr_settings(rule_by_name(name=input$rule))
+        cgolr_init_rules(obj)
+        obj$steps(input$nstep)
+        obj
+    })
+    output$theRule <- renderText({paste0('Current rule: ', robj()$settings$rule_name)})
+    output$thePlot <- renderPlot({
+        ## persist current settings
+        levelplot(robj())
+    })
+  },
+  options = list(height = .dim[1]+100)
+)
+```
