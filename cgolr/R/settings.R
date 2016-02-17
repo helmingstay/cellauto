@@ -69,6 +69,31 @@ cgolr_settings_default <- function(...) {
 ## set initial default settings
 cgolr_settings(settings=cgolr_settings_default())
 
+##############################
+## Store defaults in env
+##############################
+
+## Default theme: no padding levelplot
+## add colors in init.R / init_plot
+.cgolrEnv$levelplot_theme  <- list(
+    layout.heights = list(
+        top.padding = 0,
+        main.key.padding = 0,
+        key.axis.padding = 0,
+        axis.xlab.padding = 0,
+        xlab.key.padding = 0,
+        key.sub.padding = 0,
+        bottom.padding = 0
+    ),
+    layout.widths = list(
+        left.padding = 0,
+        key.ylab.padding = 0,
+        ylab.axis.padding = 0,
+        axis.key.padding = 0,
+        right.padding = 0
+    )
+)
+
 ## for more info see 
 ## https://en.wikipedia.org/wiki/Life-like_cellular_automaton
 .cgolrEnv$notable_rules <- within(list(), {

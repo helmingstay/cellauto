@@ -53,7 +53,7 @@ movie_steps <- function(x,
     .ndead = 30, .npreamble=30,
     .sound=F
 ) {
-    .rule <- x$user_data$init_settings$rule_name
+    .rule <- x$settings$rule_name
     ## number of total vid frames 
     ## stats nrows should equal
     .frame = 1
@@ -65,7 +65,7 @@ movie_steps <- function(x,
         stats[.frame,] <- measure(x)
         .frame <- .frame + 1
         plot(levelplot(x))
-        .my.text('Rule: ', x$user_data$init_settings$rule_name, .y=0.15)
+        .my.text('Rule: ', .rule, .y=0.15)
     }
     for (jj in 1:.nstep) {
         ## plot, add age, step 

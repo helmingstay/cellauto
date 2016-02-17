@@ -33,15 +33,25 @@ init_grid_crosshairs <- function(x,
     .v.bar <- c(.v.bar, .v.bar+diff(.h.bar))
     ## crete line between box corners
     .diag <- (ends:(min(.dim)-ends))
+    ## draw through center of canvas
     .offset <- min(.v.bar) - min(.h.bar)
-    .diag <- cbind(row=.diag, 
+    ## 
+    .diag <- as.data.frame(cbind(row=.diag, 
         col1=(.diag)+.offset, 
         col2=rev(.diag)+.offset
-    )
+    ))
+    ## remove rows that run off
+    ## subset as df, convert back to matrix for indexing
+    .diag <- as.matrix(subset(.diag, 
+        col1+ends <= .dim[2] & 
+        col2+ends <= .dim[2] 
+    ))
     ## final obj
     grid <- matrix(0, nrow=.dim[1], ncol=.dim[2])
     grid[.h.bar,(1+ends):(.dim[2]-ends)] <- 1
     grid[(1+ends):(.dim[1]-ends), .v.bar] <- 1
+    ## diagonals, use matrix indexing 
+    ## cols forward and reverse
     grid[.diag[,c(1,2)]] <- 1
     grid[.diag[,c(1,3)]] <- 1
     x$grid <- grid
@@ -51,9 +61,12 @@ init_grid_crosshairs <- function(x,
 ## prepare data structures for lattice plotting
 ## add to x$plot_data
 ## return nothing
-init_plot <- function(x, .raster=TRUE) {
+## by default use theme from settings.R /.cgolrEnv
+init_plot <- function(x, .raster=TRUE, 
+    levelplot_theme=.cgolrEnv$levelplot_theme
+) {
     ## use current values of settings
-    .pars <- x$user_data$init_settings
+    .pars <- x$settings
     ## make color ramp
     .color <- c(.pars$color.dead, .pars$color.ramp)
     ## ramp, breaks = ncolor -1 - 1 (live col)
@@ -68,29 +81,8 @@ init_plot <- function(x, .raster=TRUE) {
         ## may need to recompute as grid changes
         at <- seq(from=.pars$zlim[1], to=.pars$zlim[2], length.out=ncolor+1)
         raster <- .raster
-        ## no padding levelplot
-        ## and colors
-        lattice.theme <- list(
-            regions=list(
-                col=.color
-            ),
-            layout.heights = list(
-                top.padding = 0,
-                main.key.padding = 0,
-                key.axis.padding = 0,
-                axis.xlab.padding = 0,
-                xlab.key.padding = 0,
-                key.sub.padding = 0,
-                bottom.padding = 0
-            ),
-            layout.widths = list(
-                left.padding = 0,
-                key.ylab.padding = 0,
-                ylab.axis.padding = 0,
-                axis.key.padding = 0,
-                right.padding = 0
-            )
-        )
+        theme <- levelplot_theme
+        theme$regions <- list(col=.color)
     ## end within x$plot_data, 
     })
     invisible()

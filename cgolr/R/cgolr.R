@@ -25,15 +25,16 @@ cgolr_new <- function(
     ret$grow <- settings$grow
     ret$decay <- settings$decay
     ## initialize rules
-    with(settings, 
+    ## store initials
+    ret$settings <- settings
+    ##
+    with(settings,
         ret$init_rules(
             born, lives, 
             r.rad, c.rad,
             r.offset, c.offset
         )
     )
-    ## store initials
-    ret$user_data$init_settings <- settings
     ret$user_data$init_grid <- init.grid
     ##
     grid.type <- match.arg(init.grid)

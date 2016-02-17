@@ -2,7 +2,8 @@
 
 ## default levelplot method
 ## no axes, par.settings from x$plot_data
-levelplot.Rcpp_cgolr <- function(x, .at=NULL,
+levelplot.Rcpp_cgolr <- function(x, .at=NULL, 
+    .draw=FALSE, .key=FALSE,
     ...
 ) {
     if (is.null(.at)) {
@@ -14,12 +15,12 @@ levelplot.Rcpp_cgolr <- function(x, .at=NULL,
     .tmp <- x$plot_data
     ret <- levelplot(t(x$grid),
         #levelplot(z ~ x*y, plot.grid,
-        scales=list(draw=FALSE),
-        colorkey=F,
+        scales=list(draw=.draw),
+        colorkey=.key,
         xlab='', ylab='',
         at = .at,
         #cuts=ncolor-1,
-        par.settings=.tmp$lattice.theme,
+        par.settings=.tmp$theme,
         useRaster=.tmp$raster,
         ...
     )
