@@ -160,12 +160,16 @@ rule_by_name <- function(name=NULL, ...) {
     ## pass rule as list to settings
     .set <- .rules[[name]]
     .set$rule_name <- name
+    ## combine, input args take precendence
+    .set <- append(list(...), .set)
+    ## remvoe dups
+    .set <- .set[unique(names(.set))]
     #.new <- cgolr_settings(.set, ...)
     return(.set)
 }
 
 color_reds <- function(...) {
-    .set <- within(as.list(...), {
+    .set <- within(list(...), {
        color.live <- 'red'
        color.dead <- 'grey10'
        color.ramp <- c('darkslateblue', 'firebrick')
@@ -175,7 +179,7 @@ color_reds <- function(...) {
 }
 
 color_blues <- function(...) {
-    .set <- within(as.list(...), {
+    .set <- within(list(...), {
         color.live <- 'lightslategrey'
         color.dead <- '#060606'
         color.ramp <- c('darkslateblue','cornflowerblue')

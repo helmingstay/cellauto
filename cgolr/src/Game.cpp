@@ -147,9 +147,10 @@ public:
     // specify neighborhood and transition rules
     // TODO?? implement offsets in init_address?
     void init_rules(arma::uvec _born, arma::uvec _lives, int _radius_row, int _radius_col, int _offset_row, int _offset_col) {
-        // flip bit positions
-        //arma::uvec tmp_lives(_lives_at);
-        //arma::uvec tmp_born(_born_at);
+        // reset every time
+        born_at.reset();
+        lives_at.reset();
+        // flip bit positions for current rules
         _born.for_each(init_bitset(born_at));
         _lives.for_each(init_bitset(lives_at));
         radius_row = _radius_row;
