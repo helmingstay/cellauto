@@ -13,6 +13,17 @@
     'color.ramp'
 )
 
+
+## helper function to combine list 
+## and remove duplicates (from under) when they exist
+list_append <- function(over, under) {
+    ## combine, input args take precendence
+    ret <- append(over, under)
+    ## remvoe dups - grab the first
+    ret <- ret[unique(names(ret))]
+    return(ret)
+}
+
 cgolr_settings <- function(
     settings = NULL, quiet=FALSE, ...
 ) {
@@ -161,29 +172,54 @@ rule_by_name <- function(name=NULL, ...) {
     .set <- .rules[[name]]
     .set$rule_name <- name
     ## combine, input args take precendence
-    .set <- append(list(...), .set)
-    ## remvoe dups
-    .set <- .set[unique(names(.set))]
-    #.new <- cgolr_settings(.set, ...)
+    .set <- list_append(list(...), .set)
     return(.set)
 }
 
+
+## color_* functions prepare a list
+color_bw <- function(...) {
+    cols <- within(list(),{
+       color.live <- 'white'
+       color.dead <- 'black'
+       ## first = old, last = newly born
+       color.ramp <- c('darkgrey', 'lightgrey')
+    })
+    ## precedence to input args
+    ret <- list_append(list(...), cols)
+    return(ret)
+}
+
 color_reds <- function(...) {
-    .set <- within(list(...), {
+    cols <- within(list(), {
        color.live <- 'red'
        color.dead <- 'grey10'
        color.ramp <- c('darkslateblue', 'firebrick')
     })
-    #.new <- cgolr_settings(.set, ...)
-    return(.set)
+    ## precedence to input args
+    ret <- list_append(list(...), cols)
+    return(ret)
 }
 
 color_blues <- function(...) {
-    .set <- within(list(...), {
+    cols <- within(list(), {
         color.live <- 'lightslategrey'
         color.dead <- '#060606'
         color.ramp <- c('darkslateblue','cornflowerblue')
     })
-    #.new <- cgolr_settings(.set, ...)
-    return(.set)
+    ## precedence to input args
+    ret <- list_append(list(...), cols)
+    return(ret)
 }
+
+color_rgb <- function(...) {
+    cols <- within(list(), {
+        color.live <- 'red'
+        color.dead <- 'grey10'
+        color.ramp <- c('darkslateblue','green')
+    })
+    ## precedence to input args
+    ret <- list_append(list(...), cols)
+    return(ret)
+}
+

@@ -7,10 +7,14 @@ links <- '<p><a href="https://en.wikipedia.org/wiki/Life-like_cellular_automaton
 
 fluidPage(
     ## status
-    titlePanel(textOutput('theRule')),
+    titlePanel(textOutput('theAge')),
     ## user input
     sidebarLayout(
         sidebarPanel(
+            selectInput("col", "Colors:", 
+                choices = names(allowed_cols),
+                selected='Reds'
+            ),
             selectInput("rule", "Rule:", 
                 choices = names(allowed_rules),
                 selected='life'
@@ -18,7 +22,10 @@ fluidPage(
             sliderInput("nstep", "Steps (0 resets, use arrow keys or pointer):", 1,
                 min = 0, max = 100, step = 1
             ),
+            #textOutput('theAge'),
             actionButton('do', "Step!"),
+            #HTML(textOutput('theAge')),
+            #htmlOutput('theAge'),
             ## helpful links
             HTML(links)
         ),
