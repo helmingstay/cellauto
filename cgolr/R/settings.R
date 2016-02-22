@@ -203,7 +203,7 @@ color_rgb <- function(...) {
 ## Default game of life
 ## User supplied args overrides
 cgolr_settings_default <- function(...) {
-    .default <- colors_bw()
+    .default <- color_bw()
     .default <- within(.default, {
        grow <- 1 
        decay <- 1 
