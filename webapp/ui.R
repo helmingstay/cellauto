@@ -22,10 +22,9 @@ fluidPage(
             sliderInput("nstep", "Steps (0 resets, use arrow keys or pointer):", 1,
                 min = 0, max = 100, step = 1
             ),
-            #textOutput('theAge'),
             actionButton('do', "Step!"),
+            ##??
             #HTML(textOutput('theAge')),
-            #htmlOutput('theAge'),
             ## helpful links
             HTML(links)
         ),

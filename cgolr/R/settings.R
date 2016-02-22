@@ -53,32 +53,6 @@ cgolr_settings <- function(
 }
 
 
-## Default game of life
-## User supplied args overrides
-cgolr_settings_default <- function(...) {
-    .default <- within(list(), {
-       grow <- 1 
-       decay <- 1 
-       born <- 3 
-       lives <- c(2,3) 
-       r.rad <- 1 
-       c.rad <- 1 
-       r.offset <- 0 
-       c.offset <- 0 
-       ncolor <- 100
-       zlim <- c(0,1)
-       color.live <- 'white'
-       color.dead <- 'black'
-       ## first = old, last = newly born
-       color.ramp <- c('darkgrey', 'lightgrey')
-    })
-    ## over-ride list w/user-supplied
-    ret <- cgolr_settings(settings = .default, ...)
-    return(ret)
-}
-
-## set initial default settings
-cgolr_settings(settings=cgolr_settings_default())
 
 ##############################
 ## Store defaults in env
@@ -194,6 +168,7 @@ color_reds <- function(...) {
     cols <- within(list(), {
        color.live <- 'red'
        color.dead <- 'grey10'
+       ## first = old, last = newly born
        color.ramp <- c('darkslateblue', 'firebrick')
     })
     ## precedence to input args
@@ -205,6 +180,7 @@ color_blues <- function(...) {
     cols <- within(list(), {
         color.live <- 'lightslategrey'
         color.dead <- '#060606'
+        ## first = old, last = newly born
         color.ramp <- c('darkslateblue','cornflowerblue')
     })
     ## precedence to input args
@@ -216,6 +192,7 @@ color_rgb <- function(...) {
     cols <- within(list(), {
         color.live <- 'red'
         color.dead <- 'grey10'
+        ## first = old, last = newly born
         color.ramp <- c('darkslateblue','green')
     })
     ## precedence to input args
@@ -223,3 +200,26 @@ color_rgb <- function(...) {
     return(ret)
 }
 
+## Default game of life
+## User supplied args overrides
+cgolr_settings_default <- function(...) {
+    .default <- colors_bw()
+    .default <- within(.default, {
+       grow <- 1 
+       decay <- 1 
+       born <- 3 
+       lives <- c(2,3) 
+       r.rad <- 1 
+       c.rad <- 1 
+       r.offset <- 0 
+       c.offset <- 0 
+       ncolor <- 100
+       zlim <- c(0,1)
+    })
+    ## over-ride list w/user-supplied
+    ret <- cgolr_settings(settings = .default, ...)
+    return(ret)
+}
+
+## set initial default settings
+cgolr_settings(settings=cgolr_settings_default())

@@ -7,7 +7,7 @@ pss('helpers.R')
 
 .grid <- 'crosshairs'
 .dim <- c(720, 1280)
-cgolr_settings(quiet=T)
+cgolr_settings(settings=color_bw(),quiet=T)
 #cgolr_settings(decay=0.05)
 
 

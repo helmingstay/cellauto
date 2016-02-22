@@ -31,7 +31,6 @@ shinyServer(function(input, output) {
     })
     ## report current state
     output$theAge <- renderText({paste0('Total Steps: ', obj_fin()$age)})
-    #output$theAge <- renderText('1')
     ## prep the plot
     output$thePlot <- renderPlot({
             levelplot(obj_fin())
