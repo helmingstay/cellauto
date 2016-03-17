@@ -1,0 +1,21 @@
+## some interesting rules
+## snowflakes: diam(5,5), lives(2:3) born(3), dens(.45)
+## trees: diam(4,5), lives(2:3) born(3), dens(.55)
+
+## Links:
+## ffmpeg opts: https://trac.ffmpeg.org/wiki/Encode/H.264
+## weird frame-dropping issues with -r: video.stackexchange.com/questions/13066/how-to-encode-a-video-at-30-fps-from-images-taken-at-7-fps
+
+## Old Timings:
+#my.nstep <- 2e2
+#   user  system elapsed
+#364.968  58.400 311.762
+## without plotting:
+#user  system elapsed         Frame 199 of 200
+#205.068   0.788 205.541
+## new, with plotting
+#   user  system elapsed
+#133.352   1.964 115.793
+## new, without plotting
+# user  system elapsed
+#  3.088   0.664   3.196
