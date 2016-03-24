@@ -2,11 +2,26 @@ library(shiny)
 require(lattice)
 
 shinyServer(function(input, output) {
-    obj <- cgolr_new(
-            obj.dim[1], obj.dim[2],
-        init.grid='crosshairs'
-    )
+    ## initialize object
+    init_fun <- function(prop_fill) {
+        ret <- cgolr_new( obj.dim[1], obj.dim[2])
+        if (prop_fill == 0) {
+            init_grid_crosshairs(ret)
+        } else {
+            init_grid_random(ret, prob=prop_fill)
+        } 
+        return(ret)
+    }
+    trigger <- reactive({
+        not_used <- input$reset
+        ## global assignment, need the actual object
+        obj <<- init_fun(input$prop_fill)
+    })
     obj_prep1 <- reactive({
+        ## trigger object reset
+        trigger()
+        ## call reactive-created as obj, not as fun
+        ## this assignment fails for obj()$settings <- 
         .colfun <- allowed_cols[[input$col]]
         obj$settings <- list_append(
             .colfun(),obj$settings
