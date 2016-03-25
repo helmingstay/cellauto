@@ -23,10 +23,14 @@ fluidPage(
                 choices = names(allowed_rules),
                 selected='life'
             ),
+            selectInput("auto_step", "Autostep interval (seconds, 0 disables):", 
+                choices = 0:10,
+                selected=0
+            ),
             sliderInput("nstep", "Steps (use arrow keys or pointer):", 1,
                 min = 1, max = 100, step = 1
             ),
-            actionButton('do', "Step"),
+            actionButton('step', "Step"),
             actionButton('reset', "Reset"),
             textOutput('theAge')
         )),
