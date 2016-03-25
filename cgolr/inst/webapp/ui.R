@@ -24,7 +24,7 @@ fluidPage(
                 selected='life'
             ),
             selectInput("auto_step", "Autostep interval (seconds, 0 disables):", 
-                choices = 0:10,
+                choices = 2*(0:5),
                 selected=0
             ),
             sliderInput("nstep", "Steps (use arrow keys or pointer):", 1,
