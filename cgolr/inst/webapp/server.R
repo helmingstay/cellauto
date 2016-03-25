@@ -13,7 +13,7 @@ shinyServer(function(input, output) {
         return(ret)
     }
     ## user input, initialize: reset / prop_fill 
-    trigger <- reactive({
+    trigger_reset <- reactive({
         not_used <- input$reset
         ## global assignment, need the actual object
         obj <<- init_fun(input$prop_fill)
@@ -21,9 +21,10 @@ shinyServer(function(input, output) {
     ## color, rules
     obj_prep <- reactive({
         ## trigger object reset, if present
-        trigger()
+        trigger_reset()
         ## change rules if needed
         obj$settings <- cgolr_settings(rule_by_name(name=input$rule))
+        obj$decay <- input$decay
         cgolr_init_rules(obj)
         ## process color
         .colfun <- allowed_cols[[input$col]]
@@ -36,26 +37,34 @@ shinyServer(function(input, output) {
         obj
     })
     
-    auto_step <- reactive({
+    auto_step_size <- reactive({
         as.numeric(input$auto_step) * 1e3
     })
-    manual_step <- reactive({
-        input$step
-    })
+        
     
     ## process button press
-    obj_fin <- reactive({
-        manual_step()
-        ## check autostep interval
-        if ( auto_step() != 0) {
-            invalidateLater(auto_step())
-        } 
-        ret <- obj_prep()
-        ## set new rule
-        ## advance and return
-        ret$steps(input$nstep)
+    obj_fin <- eventReactive(
+        ## eventExpr
+        ## take a step if either button press,
+        ## or timer
+        {
+            ## check autostep interval
+            if ( auto_step_size() != 0) {
+                invalidateLater(auto_step_size())
+            }
+            input$step  
+            trigger_reset()
+        },
+        ## valueExpr
+        ## prep object, take steps, return object for plotting
+        {
+            ret <- obj_prep()
+            ## set new rule
+            ## advance and return
+            ret$steps(input$nstep)
         ret
-    })
+        }
+    )
     ## report current state
     output$theAge <- renderText({paste0('Total Steps: ', obj_fin()$age)})
     ## prep the plot

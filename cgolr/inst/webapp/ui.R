@@ -7,36 +7,46 @@ source('content.R')
 
 fluidPage(
     includeCSS(paste0(theme_dir, '/', cur_theme)),
-    titlePanel("Cellular Automata Explorer (cellautex)"),
+    titlePanel("Cellular Automata Explorer"),
     ## user input
     fluidRow(
         column(3, wellPanel(
+            h4("Controls", align='center'),
+            actionButton('step', "Advance"),
+            actionButton('reset', "Restart"),
             sliderInput(
-                "prop_fill", "Proportion Fill (0=Crosshairs)",
+                "nstep", "Number of Steps", 
+                value=1, min=1, max=100, step=1
+            ),
+            radioButtons(
+                "auto_step", "Autostep (seconds, 0 disables)", 
+                inline=T,
+                c(0,2^(1:4)), selected=0
+            ),
+            hr(),
+            h4("Configuration", align='center'),
+            sliderInput(
+                "prop_fill", "Init Fill Proportion (0=Crosshairs)",
                 min = 0, max = 1, step = 0.01, value=0
             ),
-            selectInput("col", "Colors:", 
-                choices = names(allowed_cols),
-                selected='Reds'
-            ),
-            selectInput("rule", "Rule:", 
+            selectInput("rule", "Rule", 
                 choices = names(allowed_rules),
                 selected='life'
             ),
-            selectInput("auto_step", "Autostep interval (seconds, 0 disables):", 
-                choices = 2*(0:5),
-                selected=0
+            radioButtons("col", "Color scheme", 
+                choices = names(allowed_cols),
+                inline=TRUE,
+                selected='B&W'
             ),
-            sliderInput("nstep", "Steps (use arrow keys or pointer):", 1,
-                min = 1, max = 100, step = 1
-            ),
-            actionButton('step', "Step"),
-            actionButton('reset', "Reset"),
-            textOutput('theAge')
+            sliderInput(
+                "decay", "Decay rate (fade after death)",
+                value=0.5, min=0.01, max=1, step=0.01
+            )
         )),
         ## main figure
         column(8, offset=0,
-            plotOutput("thePlot", height=obj.dim[1], width='80%')
+            plotOutput("thePlot", height=obj.dim[1], width='80%'),
+            h4(textOutput('theAge'))
         )
     ),
     fluidRow(
