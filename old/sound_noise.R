@@ -1,5 +1,5 @@
-require(seewave)
-require(audio)
+library(seewave)
+library(audio)
 
 .fn <- 'noise.wav'
 .rate <-44.1e3
@@ -24,4 +24,3 @@ require(audio)
 .ifreq <- rep(sample(.freq.sample, .nsamp, replace=T, prob=1/.freq.sample^2), each=.nn)
 aa <- synth2(ifreq=.ifreq, env=.env, f=.rate, output='audioSample')
 save.wave(aa, .fn)
-

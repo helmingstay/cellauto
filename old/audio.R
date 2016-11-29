@@ -1,6 +1,6 @@
 ## deps: http://rug.mnhn.fr/seewave/inst.html
-require(seewave)
-require(audio)
+library(seewave)
+library(audio)
 
 .freqs <- c(30, 32, 35, 38, 40, 43, 50, 55, 65, 70, 80, 85, 95)
 

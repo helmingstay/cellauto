@@ -1,3 +1,5 @@
+## R prototype of package
+
 # Generates a new board random matrix 
 # each cell is true w/prob==.density
 mk.random.board <- function(
