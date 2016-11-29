@@ -1,7 +1,9 @@
-pss('plot.prep.R')
-source('mk.movie.R')
-require(png)
-require(cgolr)
+## Deprecated
+## possibly interesting: example of PNG input
+#source('plot.prep.R')
+#source('mk.movie.R')
+library(png)
+require(cellauto)
 
 ## file from https://www.flickr.com/photos/129008627@N07/20312241890/in/album-72157652172210561/
 .cwd <- setwd('input')
@@ -15,7 +17,6 @@ system(sprintf('convert %s.jpg -crop 1280x720+0+0 -colorspace Gray -black-thresh
 .in.png <- .in.png[nrow(.in.png):1,]
 setwd(.cwd)
 
-browser()
 
 set.seed(2)
 ## output dimensions

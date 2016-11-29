@@ -1,46 +1,46 @@
-# cgolr: Conway's Game of Life (in R)
+# cellauto: Cellular Automata Explorer (in R)
 # Copyright (C) 2015-2016 Christian Gunning
 # code [at] x14n [dot] org
 
 ## initialize rules based on settings
-cgolr_init_rules <- function(x) {
-    .set <- x$settings
+init_rules <- function(x) {
+    .curr <- x$settings
     x$init_rules(
-        .set$born, .set$lives, 
-        .set$r.rad, .set$c.rad,
-        .set$r.offset, .set$c.offset
+        .curr$born, .curr$lives, 
+        .curr$r.rad, .curr$c.rad,
+        .curr$r.offset, .curr$c.offset
     )
 }
 
-## create / return new cgolr object
+## create / return new object
 ## initialize
-cgolr_new <- function(
+cellauto_new <- function(
     nrow, ncol, 
-    settings=NULL,
+    .settings=NULL,
     init.grid = c('blank','random','crosshairs')
 ) {
-    if (is.null(settings)) {
-        settings <- cgolr_settings(quiet=TRUE)
-    } else if (!is.list(settings)){
-        stop('settings must be NULL, or a named list')
+    if (is.null(.settings)) {
+        .settings <- cellauto_settings(quiet=TRUE)
+    } else if (!is.list(.settings)){
+        stop('.settings must be NULL, or a named list')
     } else {
         ## otherwise merge with current settings
-        settings <- cgolr_settings(settings=settings)
+        .settings <- cellauto_settings(.settings=.settings)
     }
     if ( length(nrow)!=1 || length(ncol)!=1 ) {
-        warning("In cgolr: only the first element of nrow / ncol used.")
+        warning("In cellauto_new: only the first element of nrow / ncol used.")
         nrow <- nrow[1]
         ncol <- ncol[1]
     }
-    ret <- new(cgolr, as.integer(nrow), as.integer(ncol))
+    ret <- new(cellauto, as.integer(nrow), as.integer(ncol))
     ## fields from settings
-    ret$grow <- settings$grow
-    ret$decay <- settings$decay
+    ret$grow <- .settings$grow
+    ret$decay <- .settings$decay
     ## initialize rules
     ## store initials
-    ret$settings <- settings
+    ret$settings <- .settings
     ##
-    cgolr_init_rules(ret)
+    init_rules(ret)
 
     ret$user_data$init.grid <- init.grid
     ##

@@ -1,3 +1,25 @@
+## main user-callable wrapper 
+## uses functions defined below
+movie_wrapper <- function(
+    movie.fun, .video.name,
+    ## video quality, 0 = lossless, higher = lower quial
+    crf=2,
+    .other.opts='-hide_banner -preset slow -c:v libx264  -pix_fmt yuv420p',
+    ## pass ... to movie.fun
+    cleanup=T, ...
+){
+    not.used <- saveVideo(
+        movie.fun(...),
+        video.name=.video.name,
+        other.opts=paste('-crf', crf, .other.opts)
+    )
+    ## animation moves video from tempdir on success
+    ## manually cleanup as we go
+    if (cleanup) {
+        file.remove(file.path(tempdir(), .video.name))
+    }
+}
+
 ## use with animation
 ## take nsteps, plotting every plot.at steps
 movie_basic <- function(x, 
@@ -17,52 +39,13 @@ movie_basic <- function(x,
 }
 
 
-## create an audio sample
-## (to add audio to movie)
-movie_tone <- function(freq, interval=1/10,
-    rate=44.1e3, nedge = 50
-) {
-    ## use linear fade for zero-crossing
-    edge <- (0:(nedge-1))/nedge
-    ## total samples
-    nsamp <- rate*interval
-    ## volume envelope
-    env <- c(edge, rep(1, nsamp-2*nedge),rev(edge))
-    ret <- synth2(ifreq=rep(freq, nsamp), env=env,
-        f=rate, output='audioSample'
-    )
-    return(ret)
-}
-
-## use movie_tone to generage soundtrack
-## from results of helper_measure
-movie_bleep <- function(
-    .df, .means, prev, interval=1/10,
-    .bounds = c(40, 500), ...
-) {
-    .freqs <- .bounds[1]:.bounds[2]
-    ## high sd = flat freq weights
-    .prob.col <- 1/(.freqs^(1/(5*.df$sdcol)))
-    .prob.row <- 1/(.freqs^(1/(5*.df$sdrow)))
-    #.prob.col <- 1/(.freqs^(1/(.df$sdcol/.means$col)))
-    #.prob.row <- 1/(.freqs^(1/(.df$sdrow/.means$row)))
-    .tone.row <- movie_tone(sample(.freqs, 1, prob=.prob.row), interval)
-    .tone.col <- movie_tone(sample(.freqs, 1, prob=.prob.col), interval)
-    .fn.row <- sprintf('row.%05d.wav', .df$frame)
-    .fn.col <- sprintf('col.%05d.wav', .df$frame)
-    save.wave(.tone.col, .fn.col)
-    save.wave(.tone.row, .fn.row)
-}
-
-
 ## plot with time-jumps
-## sound not currently working
+## show per-frame stats on transitions
 movie_annot <- function(
     obj, .nstep = 150, 
     ## frames of pre-roll
     .npreamble=30,
-    compare_at=10, compare_ngen=20,
-    .sound=F
+    compare_at=10, compare_ngen=20
 ) {
     .rule <- obj$settings$rule_name
     ## test for no change
@@ -106,28 +89,12 @@ movie_annot <- function(
             }
         }
     }
-    if (.sound) {
-        stats$frame <- 1:nrow(stats)
-        ## normalize
-        .means <- with(stats, data.frame(
-            col=mean(sdcol), 
-            row=mean(sdrow) 
-        ))
-        .cwd <- setwd(tempdir())
-        .tmp.stats <- subset(stats, 0==(frame%%2))
-            dlply(.tmp.stats, 'frame', function(.df) {
-                bleep(.df, .means, interval=1/5)
-            })
-        .cwd <- setwd(tempdir())
-        print(stats)
-    }
 }
-
 
 ## a more complex movie,
 ## compare for death/cyclic behavior
-## inject noise
-movie_noise <- function(.nstep, obj, .silent=T, 
+## inject random demographic noise
+movie_rand <- function(.nstep, obj, .silent=T, 
     ## test for no changes / cyclic over ngen?
     compare_at=1e1, compare_ngen=1,
     .step.size=1,
@@ -175,22 +142,41 @@ movie_noise <- function(.nstep, obj, .silent=T,
     }
 }
 
-movie_wrapper <- function(
-    movie.fun, .video.name,
-    ## video quality, 0 = lossless, higher = lower quial
-    crf=2,
-    .other.opts='-hide_banner -preset slow -c:v libx264  -pix_fmt yuv420p',
-    ## pass ... to movie.fun
-    cleanup=T, ...
-){
-    not.used <- saveVideo(
-        movie.fun(...),
-        video.name=.video.name,
-        other.opts=paste('-crf', crf, .other.opts)
+## deprecated?
+## create an audio sample
+## (to add audio to movie)
+movie_tone <- function(freq, interval=1/10,
+    rate=44.1e3, nedge = 50
+) {
+    ## use linear fade for zero-crossing
+    edge <- (0:(nedge-1))/nedge
+    ## total samples
+    nsamp <- rate*interval
+    ## volume envelope
+    env <- c(edge, rep(1, nsamp-2*nedge),rev(edge))
+    ret <- synth2(ifreq=rep(freq, nsamp), env=env,
+        f=rate, output='audioSample'
     )
-    ## animation moves video from tempdir on success
-    ## manually cleanup as we go
-    if (cleanup) {
-        file.remove(file.path(tempdir(), .video.name))
-    }
+    return(ret)
+}
+
+## deprecated / not completed
+## use movie_tone to generage soundtrack
+## from results of helper_measure
+movie_bleep <- function(
+    .df, .means, prev, interval=1/10,
+    .bounds = c(40, 500), ...
+) {
+    .freqs <- .bounds[1]:.bounds[2]
+    ## high sd = flat freq weights
+    .prob.col <- 1/(.freqs^(1/(5*.df$sdcol)))
+    .prob.row <- 1/(.freqs^(1/(5*.df$sdrow)))
+    #.prob.col <- 1/(.freqs^(1/(.df$sdcol/.means$col)))
+    #.prob.row <- 1/(.freqs^(1/(.df$sdrow/.means$row)))
+    .tone.row <- movie_tone(sample(.freqs, 1, prob=.prob.row), interval)
+    .tone.col <- movie_tone(sample(.freqs, 1, prob=.prob.col), interval)
+    .fn.row <- sprintf('row.%05d.wav', .df$frame)
+    .fn.col <- sprintf('col.%05d.wav', .df$frame)
+    save.wave(.tone.col, .fn.col)
+    save.wave(.tone.row, .fn.row)
 }

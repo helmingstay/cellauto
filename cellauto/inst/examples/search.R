@@ -1,4 +1,4 @@
-require(cgolr)
+require(cellauto)
 require(animation)
 require(grid)
 require(plyr)
@@ -8,12 +8,12 @@ require(plyr)
 #.dim <- c(240, 320)
 .dim <- c(480, 640)
 #.dim <- c(720, 1280)
-cgolr_settings(settings=color_bw(),quiet=T)
-cgolr_settings(decay=0.05)
+cellauto_settings(.settings=color_bw(),quiet=T)
+cellauto_settings(decay=0.05)
 
 ## unique filename
 .basename <- paste0(
-    'cgolr_movie_search',
+    'cellauto_movie_search',
     format(Sys.Date()), '-'
 )
 ## video quality
@@ -44,9 +44,9 @@ l_ply(.rules, function(.rule) {
         .nstep = .run.len$long
     }
     ## construct obj
-    .this <- cgolr_new(
+    .this <- cellauto_new(
         .dim[1], .dim[2], 
-        settings=.set, init.grid=.grid
+        .settings=.set, init.grid=.grid
     )
     ## initialize plotting
     not.used <- init_plot(.this)

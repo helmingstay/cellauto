@@ -4,7 +4,7 @@ require(lattice)
 shinyServer(function(input, output) {
     ## initialize object
     init_fun <- function(prop_fill) {
-        ret <- cgolr_new( obj.dim[1], obj.dim[2])
+        ret <- cellauto_new( obj.dim[1], obj.dim[2])
         if (prop_fill == 0) {
             init_grid_crosshairs(ret)
         } else {
@@ -23,9 +23,9 @@ shinyServer(function(input, output) {
         ## trigger object reset, if present
         trigger_reset()
         ## change rules if needed
-        obj$settings <- cgolr_settings(rule_by_name(name=input$rule))
+        obj$settings <- cellauto_settings(rule_by_name(name=input$rule))
         obj$decay <- input$decay
-        cgolr_init_rules(obj)
+        cellauto_init_rules(obj)
         ## process color
         .colfun <- allowed_cols[[input$col]]
         ## call reactive-created as obj, not as fun

@@ -1,5 +1,5 @@
-library(cgolr)
-the_package_name <- 'cgolr'
+library(cellauto)
+the_package_name <- 'cellauto'
 obj.dim <- c(400, 600)
 
 ## color palette functions from settings.R

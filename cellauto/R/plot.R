@@ -2,7 +2,7 @@
 
 ## default levelplot method
 ## no axes, par.settings from x$plot_data
-levelplot.Rcpp_cgolr <- function(x, .at=NULL, 
+levelplot.cellauto <- function(x, .at=NULL, 
     .draw=FALSE, .key=FALSE,
     ...
 ) {
@@ -27,12 +27,12 @@ levelplot.Rcpp_cgolr <- function(x, .at=NULL,
     return(ret)
 }
 
-plot.Rcpp_cgolr <- function(x, ...) {
+plot.cellauto <- function(x, ...) {
     ret <- levelplot(x, ...)
     plot(ret)
     invisible(ret)
 }
 
-image.Rcpp_cgolr <- function(x, ...) {
+image.cellauto <- function(x, ...) {
     image(x$grid, ...)
 }

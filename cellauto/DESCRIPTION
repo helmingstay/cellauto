@@ -1,0 +1,11 @@
+Package: cellauto
+Type: Package
+Title: 2D Cellular Automata Explorer
+Version: 0.101
+Date: 2016-11-29
+Author: Christian Gunning
+Maintainer: Christian Gunning <code@x14n.org>
+Description: Cellular Automata Explorer, including Conway's Game of Life.  Includes (reasonably) fast computation, plots, movies, and an example webapp using shiny.
+License: GPL (>= 3)
+Imports: methods, Rcpp (>= 0.12.1), animation, png, lattice
+LinkingTo: Rcpp, RcppArmadillo

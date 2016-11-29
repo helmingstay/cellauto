@@ -61,25 +61,25 @@ init_grid_crosshairs <- function(x,
 ## prepare data structures for lattice plotting
 ## add to x$plot_data
 ## return nothing
-## by default use theme from settings.R /.cgolrEnv
+## by default use theme from settings.R /.cellautoEnv
 init_plot <- function(x, .raster=TRUE, 
-    levelplot_theme=.cgolrEnv$levelplot_theme
+    levelplot_theme=.cellautoEnv$levelplot_theme
 ) {
     ## use current values of settings
-    .pars <- x$settings
+    .curr <- x$settings
     ## make color ramp
-    .color <- c(.pars$color.dead, .pars$color.ramp)
+    .color <- c(.curr$color.dead, .curr$color.ramp)
     ## ramp, breaks = ncolor -1 - 1 (live col)
-    .color <- colorRampPalette(colors=.color, space='Lab')(.pars$ncolor-1)
+    .color <- colorRampPalette(colors=.color, space='Lab')(.curr$ncolor-1)
     ## set "regions" colors for lattice
-    .color=c(.color, .pars$color.live)
+    .color=c(.color, .curr$color.live)
     ## 
     ## data needed for plotting
-    x$plot_data$ncolor <- .pars$ncolor
+    x$plot_data$ncolor <- .curr$ncolor
     x$plot_data <- within(x$plot_data, {
         ## levelplot at (zlim)
         ## may need to recompute as grid changes
-        at <- seq(from=.pars$zlim[1], to=.pars$zlim[2], length.out=ncolor+1)
+        at <- seq(from=.curr$zlim[1], to=.curr$zlim[2], length.out=ncolor+1)
         raster <- .raster
         theme <- levelplot_theme
         theme$regions <- list(col=.color)

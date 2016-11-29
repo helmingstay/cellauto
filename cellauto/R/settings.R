@@ -1,8 +1,8 @@
 ## Settings
 ## See https://github.com/yihui/animation/blob/master/R/ani.options.R for example
-.cgolrEnv <- new.env()
+.cellautoEnv <- new.env()
 
-.cgolrEnv$allowed.names <- c(
+.cellautoEnv$allowed.names <- c(
     'rule_name',
     'born', 'lives',
     'grow', 'decay',
@@ -24,31 +24,31 @@ list_append <- function(over, under) {
     return(ret)
 }
 
-cgolr_settings <- function(
-    settings = NULL, quiet=FALSE, ...
+cellauto_settings <- function(
+    .settings = NULL, quiet=FALSE, ...
 ) {
     lst <- list(...)
     ## if present, append named options to list 
-    if (is.list(settings)) {
-        lst <- c(settings, lst)
+    if (is.list(.settings)) {
+        lst <- c(.settings, lst)
     }
-    .curr <- .cgolrEnv$.settings
+    .curr <- .cellautoEnv$settings
     ## query 
-    .allowed <- paste0("cgolr settings, allowed names: \n", 
-        paste(.cgolrEnv$allowed.names, collapse = ', '), '\n')
+    .allowed <- paste0("cellauto settings, allowed names: \n", 
+        paste(.cellautoEnv$allowed.names, collapse = ', '), '\n')
     ## nothing to set, instead get
-    if (!length(lst) && is.null(settings)) {
+    if (!length(lst) && is.null(.settings)) {
         if (!quiet) cat(.allowed)
         return(.curr)
     }
     ## basic error checking
     if (is.null(names(lst))) stop("Argument names required")
-    if ( !all(names(lst) %in% .cgolrEnv$allowed.names)) {
+    if ( !all(names(lst) %in% .cellautoEnv$allowed.names)) {
         stop(paste0("Unrecognized argument. ", .allowed))
     }
     ## finally, set
     .curr[names(lst)] <- lst
-    assign('.settings', .curr, envir=.cgolrEnv)
+    assign('settings', .curr, envir=.cellautoEnv)
     return(.curr)
 }
 
@@ -60,7 +60,7 @@ cgolr_settings <- function(
 
 ## Default theme: no padding levelplot
 ## add colors in init.R / init_plot
-.cgolrEnv$levelplot_theme  <- list(
+.cellautoEnv$levelplot_theme  <- list(
     layout.heights = list(
         top.padding = 0,
         main.key.padding = 0,
@@ -81,7 +81,7 @@ cgolr_settings <- function(
 
 ## for more info see 
 ## https://en.wikipedia.org/wiki/Life-like_cellular_automaton
-.cgolrEnv$notable_rules <- within(list(), {
+.cellautoEnv$notable_rules <- within(list(), {
     replicator <- list(
         born=c(1,3,5,7),
         lives=c(1,3,5,7)
@@ -135,7 +135,7 @@ cgolr_settings <- function(
     
 
 rule_by_name <- function(name=NULL, ...) {
-    .rules <- .cgolrEnv$notable_rules
+    .rules <- .cellautoEnv$notable_rules
     if (is.null(name)) {
         return(.rules)
     }
@@ -202,7 +202,7 @@ color_rgb <- function(...) {
 
 ## Default game of life
 ## User supplied args overrides
-cgolr_settings_default <- function(...) {
+cellauto_settings_default <- function(...) {
     .default <- color_bw()
     .default <- within(.default, {
        grow <- 1 
@@ -217,9 +217,9 @@ cgolr_settings_default <- function(...) {
        zlim <- c(0,1)
     })
     ## over-ride list w/user-supplied
-    ret <- cgolr_settings(settings = .default, ...)
+    ret <- cellauto_settings(.settings = .default, ...)
     return(ret)
 }
 
 ## set initial default settings
-cgolr_settings(settings=cgolr_settings_default())
+cellauto_settings(.settings=cellauto_settings_default())

@@ -1,5 +1,5 @@
 library(shiny)
-library(cgolr)
+library(cellauto)
 ## possible rules
 allowed_rules <- rule_by_name()
 
@@ -7,7 +7,7 @@ source('content.R')
 
 fluidPage(
     includeCSS(paste0(theme_dir, '/', cur_theme)),
-    titlePanel("Cellular Automata Explorer"),
+    titlePanel("cellauto: Cellular Automata Explorer"),
     ## user input
     fluidRow(
         column(3, wellPanel(
