@@ -87,3 +87,4 @@ init_plot <- function(x, .raster=TRUE,
     })
     invisible()
 }
+

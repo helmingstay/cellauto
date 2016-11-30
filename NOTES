@@ -1,3 +1,13 @@
+####
+## 2016-11-29 dev:
+# https://stat.ethz.ch/R-manual/R-devel/library/methods/html/refClass.html
+# "In particular, methods should not use non-exported entries in the package's namespace, because the methods may be inherited by a reference class in another package."
+#
+# In Rcpp attributes vignette (3.3) 
+# "The compileAttributes function deals only with exporting C++ functions to R . If you
+# want the functions to additionally be publicly available from your package’s namespace
+# another step may be required."
+
 ## some interesting rules
 ## snowflakes: diam(5,5), lives(2:3) born(3), dens(.45)
 ## trees: diam(4,5), lives(2:3) born(3), dens(.55)
@@ -17,3 +27,4 @@
 ## new, without plotting
 # user  system elapsed
 #  3.088   0.664   3.196
+#
