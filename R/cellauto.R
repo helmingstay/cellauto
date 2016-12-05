@@ -6,26 +6,15 @@ cellauto <- setRefClass("cellauto",
     fields = list(
         ## user accessible, ctor
         rules='list',
-        #### input game grid
-        grid='matrix',
+        #### list of matrices, including game grid
+        mats='list'
         ## update rules
         ## pass in as named list
         #### each element of *_at must be <= (2*radius_row+1)*(2*radius_col+1) -1 (max_neighbor)
-        born_at='bool',
-        lives_at='bool',
-        radius_row='integer',
-        radius_col='integer',
-        grow='numeric',
-        decay='numeric',
         ## 
         settings='list',
         ## read-only?
-        age='integer',
-        counts='integer',
-        alive='matrix',
-        neighbor='matrix',
-        neighbor_size='integer',
-        address = 'matrix'
+        counts='list'
     )
 )
     
@@ -33,88 +22,108 @@ cellauto <- setRefClass("cellauto",
 cellauto$methods(
     ## overlay input list and args onto settings list
     ## return invisibly, e.g. works as a getter
-    init_settings = function(_settings=NULL, ...) {
+    init_settings = function(.settings=NULL, ...) {
         ## either can be absent
         ## user-passed list supercedes
-        settings <<- list_append(_settings, settings)
+        settings <<- list_append(.settings, settings)
         ## user-passed args supercedes
         settings <<- list_append(list(...), settings)
         list_check(settings, settings$names.settings)
         invisible(settings)
     }
     ## 
-    init_rules = function(_rules) {
-        list_check(_rules, settings$names_rules)
-        have <- names(_rules)
+    init_rules = function(.rules) {
+        list_check(.rules, settings$names_rules)
+        have <- names(.rules)
         if (!setequal(have, needed) ) {
             stop(paste0("Missing / extra elements in rules list, expect: ", need, " got: ", have))
         }
-        rules <<- _rules
+        rules <<- .rules
         ## assign to object
-        grow <<- rules$grow
-        decay <<- rules$decay
-        radius_row <<- rules$radius_row
-        radius_col <<- rules$radius_col
         ## max_neighbor
-        nmax <- (2*radius_row+1)*(2*radius_col+1)-1)
+        nmax <- with(rules,
+            (2*radius_row+1)*(2*radius_col+1)-1
+        )
         ## born_at / lives_at
         b_at <- logical(nmax)
         b_at[rules$born] <- TRUE
         l_at <- logical(nmax)
         l_at[rules$lives] <<- TRUE
         ## finalize
-        neighborhood_size <<- nmax
-        born_at <<- b_at
-        lives_at <<- l_at
+        rules$neighborhood_size <<- nmax
+        rules$born_at <<- b_at
+        rules$lives_at <<- l_at
     }
-    init_grid = function(_grid) {
+    init_grid = function(.grid) {
+        fin = list()
         ## dimensions
-        nr = nrow(_grid)
-        nc = ncol(_grid)
+        nr = nrow(.grid)
+        nc = ncol(.grid)
         nsqr <- prod(rn*nc)
         ## create basic objects
-        grid <<- _grid
+        fin$grid <<- .grid
         ## is currently alive
-        alive <<- (grid >= 1.0)
+        fin$alive <<- (grid >= 1.0)
         ## number living neighbors
-        neighbor <<- matrix(0L, nrow=nr, ncol=nc)
+        fin$neighbor <<- matrix(0L, nrow=nr, ncol=nc)
         ## one col per cell, index of neighbor by row
-        address <<- matrix(0L, nrow=neighborhood_size, ncol=nsqr)
+        fin$address <<- matrix(0L, nrow=neighborhood_size, ncol=nsqr)
+        mats <<- fin
         ## fill address
-        cpp_init_address(address, radius_row, radius_col, nr);
-        cpp_update(TRUE, grow, which(alive), 
-            neighbor, address, grid, alive
-        )
+        cpp_init_address(mats, rules);
+        cpp_update(mats, TRUE, which(fin$alive))
     }
 )
 
 cellauto$methods(
     initialize = function(
-        _grid, 
-        _settings=setting_by_name(.cellauto_defaults$color_list, 'bw')
+        .grid, 
+        .settings=setting_by_name(.cellauto_defaults$color_list, 'bw')
         ## dots passed to / override rule_by_name
-        _rules=rule_by_name(.cellauto_defaults$notable_rules, 'life')
+        .rules=rule_by_name(.cellauto_defaults$notable_rules, 'life')
     ) {
-        init_settings(_settings)
+        init_settings(.settings)
         ## get by name
-        init_rules(_rules)
-        init_grid(_grid)
+        init_rules(.rules)
+        init_grid(.grid)
     }
     steps = function(nstep) {
         cpp_steps(nstep, mats);
-        nalive = sum(alive) 
-        age = age + nstep
+        counts$nalive <<- sum(mats$alive)
+        counts$age <<- counts$age + nstep
     }
 )
 
 
+## prepare data structures for lattice plotting
+## by default use theme from settings.R /.cellauto_defaults
+cellauto$methods(
+    init_plot = function(.raster=TRUE, 
+        levelplot_theme=.cellauto_defaults$levelplot_theme
+    ) {
+        ## use current values of settings
+        .curr <- x$settings
+        ## make color ramp
+        .col <- c(.curr$color.dead, .curr$color.ramp)
+        ## ramp, breaks = ncolor -1 - 1 (live col)
+        .col <- colorRampPalette(colors=.col, space='Lab')(.curr$ncolor-1)
+        ## set "regions" colors for lattice
+        .col=c(.col, .curr$color.live)
+        .curr$levelplot_theme$regions = .col
+        ## 
+        ## levelplot at (zlim)
+        ## may need to recompute as grid changes
+        .curr$at <- with(.curr, 
+            seq(from=zlim[1], to=zlim[2], length.out=ncolor+1)
+        )
+        .curr$raster <- .raster
+        ## end within x$plot_data, 
+    }
+)
+
 ## create / return new object
 ## initialize
-cellauto_new <- function(
-    nrow, ncol, 
-    .settings=NULL,
-    init.grid = c('blank','random','crosshairs')
-) {
+cellauto_new <- function(.grid, .settings=NULL) {
     if (is.null(.settings)) {
         .settings <- cellauto_settings(quiet=TRUE)
     } else if (!is.list(.settings)){
@@ -123,28 +132,9 @@ cellauto_new <- function(
         ## otherwise merge with current settings
         .settings <- cellauto_settings(.settings=.settings)
     }
-    if ( length(nrow)!=1 || length(ncol)!=1 ) {
-        warning("In cellauto_new: only the first element of nrow / ncol used.")
-        nrow <- nrow[1]
-        ncol <- ncol[1]
+    if ( !is.matrix(.grid) || !is.numeric(.grid)) {
+        stop("In cellauto_new: grid must be numeric matrix")
     }
-    ret <- new(cellauto, as.integer(nrow), as.integer(ncol))
-    ## fields from settings
-    ret$grow <- .settings$grow
-    ret$decay <- .settings$decay
-    ## initialize rules
-    ## store initials
-    ret$settings <- .settings
-    ##
-    init_rules(ret)
-
-    ret$user_data$init.grid <- init.grid
-    ##
-    grid.type <- match.arg(init.grid)
-    switch(grid.type, 
-        blank = init_grid_blank(ret),
-        random = init_grid_random(ret),
-        crosshairs = init_grid_crosshairs(ret)
     )
     ## initialize plotting defaults
     init_plot(ret)

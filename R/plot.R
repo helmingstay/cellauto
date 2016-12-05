@@ -6,22 +6,22 @@ levelplot.cellauto <- function(x, .at=NULL,
     .draw=FALSE, .key=FALSE,
     ...
 ) {
+    .curr <- x$settings
     if (is.null(.at)) {
-        .at <- x$plot_data$at
+        .at <- .curr$at
     }
     ## copy grid data in   
     #x$plot_data$plot.grid$z <- as.vector(x$grid)
     ##
-    .tmp <- x$plot_data
-    ret <- levelplot(t(x$grid),
+    ret <- levelplot(t(x$mats$grid),
         #levelplot(z ~ x*y, plot.grid,
         scales=list(draw=.draw),
         colorkey=.key,
         xlab='', ylab='',
         at = .at,
         #cuts=ncolor-1,
-        par.settings=.tmp$theme,
-        useRaster=.tmp$raster,
+        par.settings=.curr$theme_levelplot,
+        useRaster=.curr$raster,
         ...
     )
     return(ret)
@@ -34,5 +34,5 @@ plot.cellauto <- function(x, ...) {
 }
 
 image.cellauto <- function(x, ...) {
-    image(x$grid, ...)
+    image(x$mat$grid, ...)
 }
