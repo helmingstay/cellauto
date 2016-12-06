@@ -1,25 +1,25 @@
-\name{cgolr-package}
-\alias{cgolr-package}
-\alias{cgolr}
+\name{cellauto-package}
+\alias{cellauto-package}
+\alias{cellauto}
 \docType{package}
 \title{
-\packageTitle{cgolr}
+\packageTitle{cellauto}
 }
 \description{
-\packageDescription{cgolr}
+\packageDescription{cellauto}
 }
 \details{
 
 The DESCRIPTION file:
-\packageDESCRIPTION{cgolr}
-\packageIndices{cgolr}
+\packageDESCRIPTION{cellauto}
+\packageIndices{cellauto}
 ~~ An overview of how to use the package, including the ~~
 ~~ most important functions ~~
 }
 \author{
-\packageAuthor{cgolr}
+\packageAuthor{cellauto}
 
-Maintainer: \packageMaintainer{cgolr}
+Maintainer: \packageMaintainer{cellauto}
 }
 \references{
 ~~ Literature or other references for background information ~~

@@ -25,7 +25,7 @@ init_grid_crosshairs <- function(.nrow, .ncol,
     ##  ensure box has L/R symmetry 
     .v.bar <- c(.v.bar, .v.bar+diff(.h.bar))
     ## crete line between box corners
-    .diag <- (ends:(.dim.min)-ends))
+    .diag <- (ends:(.dim.min)-ends)
     ## draw through center of canvas
     .offset <- min(.v.bar) - min(.h.bar)
     ## 
@@ -49,5 +49,3 @@ init_grid_crosshairs <- function(.nrow, .ncol,
     ret[.diag[,c(1,3)]] <- 1
     ret 
 }
-
-

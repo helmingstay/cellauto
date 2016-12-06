@@ -1,20 +1,13 @@
-#include <Rcpp.h>
-#include "cellauto.h"
+// shared class defns would go here:
+#include "cellauto_types.h"
 
 // [[Rcpp::plugins("cpp11")]]
 
-using Rcpp::NumericVector;
-using Rcpp::IntegerVector;
-using Rcpp::LogicalVector;
-using Rcpp::IntegerMatrix;
-
 // [[Rcpp::export]]
-void cpp_init_address(Rcpp::List mats, Rcpp::List rules) {
-    auto addr = mats("address");
-    auto nrow = rules("radius_row");
-    auto ncol = rules("radius_col");
-    size_t grid_size = mats("grid").size();
-    size_t grid_nrow = mats("grid").nrow();
+void cpp_init_address(Mats mats, size_t nrow, size_t ncol) {
+    // no size() for matrix??
+    size_t grid_size = mats.grid.length();
+    size_t grid_nrow = mats.grid.nrow();
     // for each col (neighborhood)
     for (size_t icell = 0; icell < grid_size; icell++){ 
         // index of address
@@ -26,7 +19,7 @@ void cpp_init_address(Rcpp::List mats, Rcpp::List rules) {
                 if (irow == 0 & icol == 0) continue;
                 // index of this neighbor 
                 // mod size of grid (wrap boundaries)
-                addr(icell, counter) = (icell + irow + (icol*grid_nrow)) % (grid_size);
+                mats.address[icell, counter] = (icell + irow + (icol*grid_nrow)) % (grid_size);
                 counter++;
             }
         }
@@ -39,60 +32,76 @@ void cpp_init_address(Rcpp::List mats, Rcpp::List rules) {
 // and update the history grid
 // return number of changes
 // [[Rcpp::export]]
-size_t cpp_update(
-    Rcpp::List mats,
-    const bool birth,
-    const IntegerVector changes
+void cpp_update(
+    const IntegerVector changes,
+    Mats mats,
+    const bool birth = true
 ) {
     size_t hood_to = 1;
     if (!birth) { 
         // death
-        hood_to = -1
+        hood_to = -1;
     }
-    nhood = mats("neighbor").nrow();
-    for (auto icell : changes) {
+    //Rcpp::Rcout << "#" ;
+    size_t nhood = mats.neighbor.nrow();
+    for (size_t icell : changes) {
+        //Rcpp::Rcout << "." ;
         // R-to-Cpp
         icell=icell-1;
         // loop through neighborhood
         for (size_t ihood = 0; ihood < nhood; ihood++) {
-            addr = mats("address")[ihood, icell];
-            mats("neighbor")(addr) += hood_to;
+            size_t addr = mats.address[ihood, icell];
+            mats.neighbor[addr] += hood_to;
         }
     }
-    return changes.size();
 };
 
 // [[Rcpp::export]]
-size_t cpp_steps(size_t nstep, List mats) {
+size_t cpp_steps(
+    int nstep, 
+    IntegerVector born_at, IntegerVector lives_at,
+    double grow, double decay,
+    Mats mats, List counts
+) {
+    size_t nbirth, ndeath;
     for (size_t istep = 0; istep < nstep; nstep++) {
-        IntegerMatrix tmp_neighbor(mats("neighbor"));
+        // store initial state
+        mats.neighbor0 = clone(mats.neighbor);
         bool alive0;
-        size_t neighbor0;
+        size_t ineigh;
         // reset transition counts
-        size_t nbirth = 0;
-        size_t ndeath = 0;
-        size_t ntot = alive.size();
+        nbirth = 0;
+        ndeath = 0;
+        size_t ntot = mats.alive.length();
         // run through whole matrix
         for (int ii = 0; ii < ntot; ii++) {
+            //Rcpp::Rcout << "++" ;
             // order is important for alive0
-            alive0 = mats("alive")(ii);
-            neighbor0 = tmp_neighbor(ii);
+            alive0 = mats.alive[ii];
+            // number of neighbors as index
+            ineigh = mats.neighbor0[ii];
+            //Rcpp::Rcout << "# neigh " << ineigh << " born_at " << born_at << std::endl;
+            //Rcpp::Rcout << "#" ;
             if ( !alive0 ) {
                 // was dead, born
-                if( born_at(neighbor0) ) {
+                //Rcpp::Rcout << "# neigh " << ineigh << " born_at " << born_at << std::endl;
+                if( born_at[ineigh] ) {
                     nbirth++;
-                    cpp_update(true, ii, mats);
+                    cpp_update(wrap(ii), mats);
                 }
-                mats("grid")(ii) *= (1.0 - decay);
+                mats.grid[ii] *= (1.0 - decay);
             } else {
                 // alive
-                if ( !(lives_at(neighbor0))) {
+                if ( !(lives_at[ineigh])) {
                     ndeath++;
                     // was alive, dies
-                    cpp_update(false, ii, mats);
+                    cpp_update(wrap(ii), mats, false);
                 }
-                mats("grid")(ii) = 1.0 + mats("grid")(ii) * grow;
+                mats.grid[ii] = (1.0 + mats.grid[ii] * grow);
             }
         }
     }
+    // add totals for all steps also?
+    counts["nbirth"] = nbirth;
+    counts["ndeath"] = ndeath;
 }

@@ -14,7 +14,7 @@ list_append <- function(over, under) {
 list_check <- function(lst, allowed) {
     have <- names(lst)
     ## basic error checking
-    if (is.null(have) stop("List names required.")
+    if (is.null(have)) stop("List names required.")
     bad <- setdiff(have, allowed)
     if ( length(bad) >0) {
         stop(paste0("Unrecognized list element: ", bad, collapse=', '))
@@ -50,7 +50,7 @@ setting_by_name <- function(color_list, name, ...) {
         zlim <- c(0,1)
     })
     ## over-ride list w/user-supplied
-    ret <- cellauto_settings(.settings = ret, ...)
+    ret <- list_append(list(...), ret)
     return(ret)
 }
 
@@ -64,7 +64,9 @@ setting_by_name <- function(color_list, name, ...) {
         # 'offset_row', 'offset_col',
         'rule_name',
         'born', 'lives',
-        'radius_row', 'radius_col'
+        'born_at', 'lives_at',
+        'radius_row', 'radius_col',
+        'neighborhood_size'
     )
     names.settings <- c(
         'names.settings', 'names.rules',
