@@ -20,7 +20,7 @@ levelplot.cellauto <- function(x, .at=NULL,
         xlab='', ylab='',
         at = .at,
         #cuts=ncolor-1,
-        par.settings=.curr$theme_levelplot,
+        par.settings=.curr$theme,
         useRaster=.curr$raster,
         ...
     )

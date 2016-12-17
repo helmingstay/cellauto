@@ -44,11 +44,10 @@ cellauto$methods(
             (2*radius_row+1)*(2*radius_col+1)-1
         )
         ## born_at / lives_at
-        ## 0-based indexes
         b_at <- logical(nmax)
-        b_at[.rules$born-1] <- TRUE
+        b_at[.rules$born] <- TRUE
         l_at <- logical(nmax)
-        l_at[.rules$lives-1] <- TRUE
+        l_at[.rules$lives] <- TRUE
         ## finalize
         .rules$neighborhood_size <- nmax
         .rules$born_at <- b_at
@@ -65,9 +64,8 @@ cellauto$methods(
         nsqr <- prod(nr*nc)
         ## create basic objects
         fin$grid <- .grid
-        ## is currently alive
-        fin$alive <- (.grid >= 1.0)
         ## number living neighbors
+        fin$alive <- matrix(FALSE, nrow=nr, ncol=nc)
         fin$neighbor <- matrix(0L, nrow=nr, ncol=nc)
         fin$neighbor0 <- matrix(0L, nrow=nr, ncol=nc)
         ## one col per cell, index of neighbor by row
@@ -75,7 +73,11 @@ cellauto$methods(
         mats <<- fin
         ## fill address
         cpp_init_address(mats, rules$radius_row, rules$radius_col);
-        cpp_update(which(fin$alive), mats)
+        ## set neighbor counts, alive
+        .updates <- which(.grid >= 1.0)-1
+        cpp_update(.updates, mats)
+        ##
+        counts <<- list(age=0, nbirth=0, ndeath=0)
     }
 )
 
@@ -95,15 +97,20 @@ cellauto$methods(
     }
 )
 cellauto$methods(
-    steps = function(nstep) {
-        cpp_steps(
-            nstep, 
+    step = function() {
+        cpp_step(
             rules$born_at, rules$lives_at, 
             settings$grow, settings$decay, 
             mats, counts
         );
         counts$nalive <<- sum(mats$alive)
-        counts$age <<- counts$age + nstep
+        counts$age <<- counts$age + 1
+    },
+    steps = function(nstep) {
+        while (nstep >0 ) {
+            step()
+            nstep = nstep -1
+        }
     }
 )
 
@@ -113,13 +120,14 @@ cellauto$methods(
     init_plot = function(.raster=TRUE) {
         ## use current values of settings
         .curr <- settings
+        
         ## make color ramp
         .col <- c(.curr$color.dead, .curr$color.ramp)
         ## ramp, breaks = ncolor -1 - 1 (live col)
         .col <- colorRampPalette(colors=.col, space='Lab')(.curr$ncolor-1)
         ## set "regions" colors for lattice
         .col=c(.col, .curr$color.live)
-        .curr$levelplot_theme$regions = .col
+        .curr$theme = list(regions=list(col=.col))
         ## 
         ## levelplot at (zlim)
         ## may need to recompute as grid changes
@@ -127,6 +135,7 @@ cellauto$methods(
             seq(from=zlim[1], to=zlim[2], length.out=ncolor+1)
         )
         .curr$raster <- .raster
+        settings <<- .curr
         ## end within x$plot_data, 
     }
 )
