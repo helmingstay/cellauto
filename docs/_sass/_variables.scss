@@ -1,7 +1,7 @@
 // Typography
-$base-font-size: 18px !default;
+$base-font-size: 24px !default;
 $bold-font-weight: bold !default;
-$font-family: 'Merriweather', 'PT Serif', Georgia, 'Times New Roman', serif !default;
+$font-family: Georgia, 'Merriweather', 'PT Serif', 'Times New Roman', serif !default;
 $line-height: 1.5 !default;
 $heading-font-family: 'Lato', 'Helvetica Neue', Helvetica, sans-serif !default;
 $heading-font-weight: 600 !default;
@@ -93,8 +93,7 @@ $form-field-padding-x: .5rem;
 
 // Code
 $pre-border-radius: 0;
-$pre-background-color: #dddddd;
-//$pre-background-color: #fafafa;
+$pre-background-color: #fafafa;
 $hljs-comment: $mid-gray;
 $hljs-keyword: $dark-blue;
 $hljs-name: $dark-gray;
