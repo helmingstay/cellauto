@@ -57,7 +57,7 @@ void cpp_update(
 };
 
 // [[Rcpp::export]]
-size_t cpp_step(
+void cpp_step(
     IntegerVector born_at, IntegerVector lives_at,
     double grow, double decay,
     Mats mats, List counts
